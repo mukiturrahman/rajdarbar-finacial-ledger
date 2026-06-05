@@ -14,7 +14,7 @@ interface Props { events: EventClient[]; projects: Project[]; transactions: Tran
 export function EventsView({ events: initialEvents, projects: initialProjects, transactions }: Props) {
   const { toast } = useToast()
   const profile = useProfile()
-  const canMutate = profile && ['owner', 'editor'].includes(profile.role)
+  const canMutate = !!(profile && ['owner', 'editor'].includes(profile.role))
   const [events, setEvents] = useState(initialEvents)
   const [projects, setProjects] = useState(initialProjects)
   const [modalOpen, setModalOpen] = useState(false)

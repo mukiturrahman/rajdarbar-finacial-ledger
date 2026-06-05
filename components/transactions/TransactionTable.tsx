@@ -21,7 +21,7 @@ interface Props {
 export function TransactionTable({ initialTxns, config, events, projects }: Props) {
   const { toast } = useToast()
   const profile = useProfile()
-  const canMutate = profile && ['owner', 'editor'].includes(profile.role)
+  const canMutate = !!(profile && ['owner', 'editor'].includes(profile.role))
 
   const [txns] = useState(initialTxns)
   const [search, setSearch] = useState('')
