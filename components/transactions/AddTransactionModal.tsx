@@ -1,0 +1,102 @@
+'use client'
+import { useState, useEffect } from 'react'
+import { Modal } from '@/components/ui/Modal'
+import { useToast } from '@/components/ui/Toast'
+import { saveTransactionAction } from '@/app/actions/transactions'
+import { Loader2, Save } from 'lucide-react'
+import type { Transaction, MasterConfig, EventClient, Project } from '@/types'
+
+interface Props {
+  open: boolean
+  onClose: () => void
+  editTxn: Transaction | null
+  events: EventClient[]
+  projects: Project[]
+  config: MasterConfig
+}
+
+export function AddTransactionModal({ open, onClose, editTxn, events, projects, config }: Props) {
+  const { toast } = useToast()
+  const [saving, setSaving] = useState(false)
+
+  const today = new Date().toISOString().split('T')[0]
+  const [form, setForm] = useState({
+    date: today, description: '', category: 'Uncategorized', type: 'Expense' as 'Income' | 'Expense',
+    amount: '', method: config.methods?.[0] || 'Cash', source: '',
+    status: 'Pending' as string, event_id: '', project_id: '',
+  })
+
+  useEffect(() => {
+    if (editTxn) {
+      setForm({
+        date: editTxn.date, description: editTxn.description, category: editTxn.category || 'Uncategorized',
+        type: editTxn.type, amount: String(editTxn.amount), method: editTxn.method,
+        source: editTxn.source || '', status: editTxn.status,
+        event_id: editTxn.event_id || '', project_id: editTxn.project_id || '',
+      })
+    } else {
+      setForm({ date: today, description: '', category: 'Uncategorized', type: 'Expense', amount: '', method: config.methods?.[0] || 'Cash', source: '', status: 'Pending', event_id: '', project_id: '' })
+    }
+  }, [editTxn, open, today, config.methods])
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setSaving(true)
+    const payload = { ...form, amount: parseFloat(form.amount) || 0, source: form.source || null, event_id: form.event_id || null, project_id: form.project_id || null }
+    const res = await saveTransactionAction(payload, !!editTxn, editTxn?.id)
+    setSaving(false)
+    if (res.success) { toast(editTxn ? 'Transaction updated' : 'Transaction added'); onClose(); window.location.reload() }
+    else toast(res.error || 'Failed to save', 'error')
+  }
+
+  const filteredProjects = form.event_id ? projects.filter(p => p.event_id === form.event_id) : projects
+
+  return (
+    <Modal open={open} onClose={onClose} title={editTxn ? 'Edit Transaction' : 'Add Transaction'} footer={
+      <><button type="button" onClick={onClose} className="btn-ghost">Cancel</button>
+      <button type="submit" form="txn-form" disabled={saving} className="btn-primary disabled:opacity-50">
+        {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}{editTxn ? 'Update' : 'Save'}
+      </button></>
+    }>
+      <form id="txn-form" onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <div className="grid grid-cols-2 gap-4">
+          <div><label className="block text-[0.6875rem] font-bold text-text-muted mb-1.5 uppercase tracking-[0.08em]">Date</label><input type="date" value={form.date} onChange={e => setForm({...form, date: e.target.value})} required className="input-field" /></div>
+          <div><label className="block text-[0.6875rem] font-bold text-text-muted mb-1.5 uppercase tracking-[0.08em]">Type</label>
+            <select value={form.type} onChange={e => setForm({...form, type: e.target.value as 'Income'|'Expense'})} className="input-field"><option>Income</option><option>Expense</option></select>
+          </div>
+        </div>
+        <div><label className="block text-[0.6875rem] font-bold text-text-muted mb-1.5 uppercase tracking-[0.08em]">Description</label><input type="text" value={form.description} onChange={e => setForm({...form, description: e.target.value})} required className="input-field" placeholder="Transaction description" /></div>
+        <div className="grid grid-cols-2 gap-4">
+          <div><label className="block text-[0.6875rem] font-bold text-text-muted mb-1.5 uppercase tracking-[0.08em]">Amount (৳)</label><input type="number" step="0.01" min="0" value={form.amount} onChange={e => setForm({...form, amount: e.target.value})} required className="input-field" placeholder="0.00" /></div>
+          <div><label className="block text-[0.6875rem] font-bold text-text-muted mb-1.5 uppercase tracking-[0.08em]">Method</label>
+            <select value={form.method} onChange={e => setForm({...form, method: e.target.value})} className="input-field">
+              {(config.methods || ['Cash', 'Bank Transfer', 'bKash', 'Nagad', 'Check']).map(m => <option key={m}>{m}</option>)}
+            </select>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          <div><label className="block text-[0.6875rem] font-bold text-text-muted mb-1.5 uppercase tracking-[0.08em]">Event</label>
+            <select value={form.event_id} onChange={e => setForm({...form, event_id: e.target.value, project_id: ''})} className="input-field">
+              <option value="">None</option>{events.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+            </select>
+          </div>
+          <div><label className="block text-[0.6875rem] font-bold text-text-muted mb-1.5 uppercase tracking-[0.08em]">Project</label>
+            <select value={form.project_id} onChange={e => setForm({...form, project_id: e.target.value})} className="input-field">
+              <option value="">None</option>{filteredProjects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+            </select>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          <div><label className="block text-[0.6875rem] font-bold text-text-muted mb-1.5 uppercase tracking-[0.08em]">Status</label>
+            <select value={form.status} onChange={e => setForm({...form, status: e.target.value})} className="input-field">
+              {['Pending', 'Received', 'Paid', 'Rejected', 'On Hold'].map(s => <option key={s}>{s}</option>)}
+            </select>
+          </div>
+          <div><label className="block text-[0.6875rem] font-bold text-text-muted mb-1.5 uppercase tracking-[0.08em]">Source</label>
+            <input type="text" value={form.source} onChange={e => setForm({...form, source: e.target.value})} className="input-field" placeholder="Optional" />
+          </div>
+        </div>
+      </form>
+    </Modal>
+  )
+}
