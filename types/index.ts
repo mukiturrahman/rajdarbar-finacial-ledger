@@ -13,6 +13,15 @@ export interface Profile {
 export interface EventClient {
   id: string
   name: string
+  party_name?: string
+  event_date?: string
+  booking_date?: string
+  advance_payment?: number
+  total_amount?: number
+  event_type?: string
+  guests_count?: number
+  revenue?: number
+  remaining_amount?: number
   created_at: string
 }
 
@@ -39,6 +48,7 @@ export interface Transaction {
   source?: string | null
   status: TxnStatus
   created_by: string
+  receipt_url?: string
   deleted_at: string | null
   created_at: string
 }
@@ -48,7 +58,6 @@ export interface MasterConfig {
   methods: string[]
   statuses: string[]
   events: string[]
-  years: number[]
 }
 
 export interface AppConfig {

@@ -10,13 +10,11 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     
     const variants = {
       primary: "btn-primary",
-      secondary: "glass-sm text-text-primary hover:bg-white/5 px-4 py-2 rounded-xl border border-white/10 text-sm font-medium transition-colors",
-      danger: "btn-primary !bg-none !bg-semantic-red !shadow-glow-red",
+      secondary: "btn-secondary",
+      danger: "btn-primary !bg-rose-600 hover:!bg-rose-700 !text-white",
       ghost: "btn-ghost",
     };
 
-    // The globals.css handles most sizing internally for btn-primary/btn-ghost.
-    // If specific sizes are needed, we can append padding.
     const sizes = {
       sm: "!py-1.5 !px-3 !min-h-0 text-xs",
       md: "",

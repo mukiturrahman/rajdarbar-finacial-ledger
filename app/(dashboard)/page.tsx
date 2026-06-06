@@ -5,7 +5,7 @@ import { RecentTransactions } from '@/components/dashboard/RecentTransactions'
 import { UpcomingEventsTracker } from '@/components/dashboard/UpcomingEventsTracker'
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader'
 import { computeKPIs, computeEventProfit } from '@/lib/utils/calculations'
-import type { Transaction } from '@/types'
+import type { Transaction, EventClient } from '@/types'
 
 export default async function DashboardPage() {
   const supabase = await getSupabaseServer()
@@ -20,7 +20,11 @@ export default async function DashboardPage() {
   ])
   const txns = (txnsRaw ?? []) as Transaction[]
   // Ensure we pass the required fields to events
-  const events = (eventsRaw ?? []) as any[]
+  const eventsRawData = (eventsRaw ?? []) as EventClient[]
+  const events = eventsRawData.map(e => ({
+    ...e,
+    revenue: computeEventProfit(e, txns).revenue
+  }))
   const activeProjectsCount = projectsCount ?? 0
 
   const kpis = computeKPIs(txns, activeProjectsCount)

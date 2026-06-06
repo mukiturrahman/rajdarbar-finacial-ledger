@@ -1,8 +1,10 @@
 'use client'
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { Modal } from '@/components/ui/Modal'
 import { useToast } from '@/components/ui/Toast'
 import { saveTransactionAction } from '@/app/actions/transactions'
+import { useLanguage } from '@/components/LanguageProvider'
 import { Loader2, Save } from 'lucide-react'
 import type { Transaction, MasterConfig, EventClient, Project } from '@/types'
 
@@ -17,6 +19,8 @@ interface Props {
 
 export function AddTransactionModal({ open, onClose, editTxn, events, projects, config }: Props) {
   const { toast } = useToast()
+  const { t } = useLanguage()
+  const router = useRouter()
   const [saving, setSaving] = useState(false)
 
   const today = new Date().toISOString().split('T')[0]
@@ -45,7 +49,7 @@ export function AddTransactionModal({ open, onClose, editTxn, events, projects, 
     const payload = { ...form, amount: parseFloat(form.amount) || 0, source: form.source || null, event_id: form.event_id || null, project_id: form.project_id || null }
     const res = await saveTransactionAction(payload, !!editTxn, editTxn?.id)
     setSaving(false)
-    if (res.success) { toast(editTxn ? 'Transaction updated' : 'Transaction added'); onClose(); window.location.reload() }
+    if (res.success) { toast(editTxn ? 'Transaction updated' : 'Transaction added'); onClose(); router.refresh() }
     else toast(res.error || 'Failed to save', 'error')
   }
 
@@ -60,40 +64,47 @@ export function AddTransactionModal({ open, onClose, editTxn, events, projects, 
     }>
       <form id="txn-form" onSubmit={handleSubmit} className="flex flex-col gap-4">
         <div className="grid grid-cols-2 gap-4">
-          <div><label className="block text-[0.6875rem] font-bold text-text-muted mb-1.5 uppercase tracking-[0.08em]">Date</label><input type="date" value={form.date} onChange={e => setForm({...form, date: e.target.value})} required className="input-field" /></div>
-          <div><label className="block text-[0.6875rem] font-bold text-text-muted mb-1.5 uppercase tracking-[0.08em]">Type</label>
-            <select value={form.type} onChange={e => setForm({...form, type: e.target.value as 'Income'|'Expense'})} className="input-field"><option>Income</option><option>Expense</option></select>
+          <div><label className="block text-[0.6875rem] font-bold text-text-muted mb-1.5 uppercase tracking-[0.08em]">{t("date")}</label><input type="date" value={form.date} onChange={e => setForm({...form, date: e.target.value})} required className="input-field" /></div>
+          <div><label className="block text-[0.6875rem] font-bold text-text-muted mb-1.5 uppercase tracking-[0.08em]">{t("eventType")}</label>
+            <select value={form.type} onChange={e => setForm({...form, type: e.target.value as 'Income'|'Expense'})} className="input-field"><option>{t("income")}</option><option>{t("expense")}</option></select>
           </div>
         </div>
-        <div><label className="block text-[0.6875rem] font-bold text-text-muted mb-1.5 uppercase tracking-[0.08em]">Description</label><input type="text" value={form.description} onChange={e => setForm({...form, description: e.target.value})} required className="input-field" placeholder="Transaction description" /></div>
         <div className="grid grid-cols-2 gap-4">
-          <div><label className="block text-[0.6875rem] font-bold text-text-muted mb-1.5 uppercase tracking-[0.08em]">Amount (৳)</label><input type="number" step="0.01" min="0" value={form.amount} onChange={e => setForm({...form, amount: e.target.value})} required className="input-field" placeholder="0.00" /></div>
-          <div><label className="block text-[0.6875rem] font-bold text-text-muted mb-1.5 uppercase tracking-[0.08em]">Method</label>
+          <div><label className="block text-[0.6875rem] font-bold text-text-muted mb-1.5 uppercase tracking-[0.08em]">{t("description")}</label><input type="text" value={form.description} onChange={e => setForm({...form, description: e.target.value})} required className="input-field" placeholder={t("description")} /></div>
+          <div><label className="block text-[0.6875rem] font-bold text-text-muted mb-1.5 uppercase tracking-[0.08em]">{t("category")}</label>
+            <select value={form.category} onChange={e => setForm({...form, category: e.target.value})} className="input-field">
+              {(config.categories || ['Uncategorized']).map(c => <option key={c}>{c}</option>)}
+            </select>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          <div><label className="block text-[0.6875rem] font-bold text-text-muted mb-1.5 uppercase tracking-[0.08em]">{t("amount")} (৳)</label><input type="number" step="0.01" min="0" value={form.amount} onChange={e => setForm({...form, amount: e.target.value})} required className="input-field" placeholder="0.00" /></div>
+          <div><label className="block text-[0.6875rem] font-bold text-text-muted mb-1.5 uppercase tracking-[0.08em]">{t("method")}</label>
             <select value={form.method} onChange={e => setForm({...form, method: e.target.value})} className="input-field">
               {(config.methods || ['Cash', 'Bank Transfer', 'bKash', 'Nagad', 'Check']).map(m => <option key={m}>{m}</option>)}
             </select>
           </div>
         </div>
         <div className="grid grid-cols-2 gap-4">
-          <div><label className="block text-[0.6875rem] font-bold text-text-muted mb-1.5 uppercase tracking-[0.08em]">Event</label>
+          <div><label className="block text-[0.6875rem] font-bold text-text-muted mb-1.5 uppercase tracking-[0.08em]">{t("event")}</label>
             <select value={form.event_id} onChange={e => setForm({...form, event_id: e.target.value, project_id: ''})} className="input-field">
-              <option value="">None</option>{events.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+              <option value="">{t("none")}</option>{events.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
             </select>
           </div>
-          <div><label className="block text-[0.6875rem] font-bold text-text-muted mb-1.5 uppercase tracking-[0.08em]">Project</label>
+          <div><label className="block text-[0.6875rem] font-bold text-text-muted mb-1.5 uppercase tracking-[0.08em]">{t("project")}</label>
             <select value={form.project_id} onChange={e => setForm({...form, project_id: e.target.value})} className="input-field">
-              <option value="">None</option>{filteredProjects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+              <option value="">{t("none")}</option>{filteredProjects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
             </select>
           </div>
         </div>
         <div className="grid grid-cols-2 gap-4">
-          <div><label className="block text-[0.6875rem] font-bold text-text-muted mb-1.5 uppercase tracking-[0.08em]">Status</label>
+          <div><label className="block text-[0.6875rem] font-bold text-text-muted mb-1.5 uppercase tracking-[0.08em]">{t("status")}</label>
             <select value={form.status} onChange={e => setForm({...form, status: e.target.value})} className="input-field">
               {['Pending', 'Received', 'Paid', 'Rejected', 'On Hold'].map(s => <option key={s}>{s}</option>)}
             </select>
           </div>
-          <div><label className="block text-[0.6875rem] font-bold text-text-muted mb-1.5 uppercase tracking-[0.08em]">Source</label>
-            <input type="text" value={form.source} onChange={e => setForm({...form, source: e.target.value})} className="input-field" placeholder="Optional" />
+          <div><label className="block text-[0.6875rem] font-bold text-text-muted mb-1.5 uppercase tracking-[0.08em]">{t("source")}</label>
+            <input type="text" value={form.source} onChange={e => setForm({...form, source: e.target.value})} className="input-field" placeholder={t("optional")} />
           </div>
         </div>
       </form>

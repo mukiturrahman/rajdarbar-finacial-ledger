@@ -40,6 +40,7 @@ export async function createInvoiceAndEvent(formData: any, totalAmount: number) 
       guests_count: formData.guestsCount || 0,
       total_amount: totalAmount || 0,
       advance_payment: formData.advancePayment || 0,
+      remaining_amount: formData.remainingAmount || 0,
     })
     .select()
     .single();

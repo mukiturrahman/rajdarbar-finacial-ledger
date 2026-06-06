@@ -2,7 +2,7 @@ import React from "react";
 
 export function Card({ className = "", children, ...props }: React.HTMLAttributes<HTMLDivElement>) {
   return (
-    <div className={`glass overflow-hidden ${className}`} {...props}>
+    <div className={`bg-bg-elevated border border-border rounded-xl shadow-glass-sm ${className}`} {...props}>
       {children}
     </div>
   );
@@ -10,7 +10,7 @@ export function Card({ className = "", children, ...props }: React.HTMLAttribute
 
 export function CardHeader({ className = "", children, ...props }: React.HTMLAttributes<HTMLDivElement>) {
   return (
-    <div className={`flex flex-col space-y-1.5 p-6 border-b border-white/5 ${className}`} {...props}>
+    <div className={`flex flex-col space-y-1.5 p-6 border-b border-border ${className}`} {...props}>
       {children}
     </div>
   );

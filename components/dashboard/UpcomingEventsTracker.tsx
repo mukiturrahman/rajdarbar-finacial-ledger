@@ -2,30 +2,13 @@
 
 import React from "react";
 import { useLanguage } from "@/components/LanguageProvider";
-import { Calendar, Trash2, Edit } from "lucide-react";
-
-type EventType = {
-  id: string;
-  name: string;
-  event_type?: string;
-  party_name?: string;
-  booking_date?: string;
-  event_date?: string;
-  advance_payment?: number;
-  total_amount?: number;
-};
+import { Calendar } from "lucide-react";
+import type { EventClient } from '@/types';
 
 import Link from 'next/link';
 
-export function UpcomingEventsTracker({ events = [] }: { events?: EventType[] }) {
+export function UpcomingEventsTracker({ events = [] }: { events?: EventClient[] }) {
   const { t } = useLanguage();
-
-  const handleDelete = (id: string) => {
-    if (confirm(t("confirmDelete"))) {
-      // API call to delete
-      console.log("Delete", id);
-    }
-  };
 
   const formatDate = (dateStr?: string) => {
     if (!dateStr) return "N/A";
@@ -52,13 +35,12 @@ export function UpcomingEventsTracker({ events = [] }: { events?: EventType[] })
                 <th>{t("eventDate")}</th>
                 <th>{t("bookingDate")}</th>
                 <th>{t("advancePayment")}</th>
-                <th>{t("actions")}</th>
               </tr>
             </thead>
             <tbody>
               {events.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="py-8 text-center text-text-muted text-sm">
+                  <td colSpan={4} className="py-8 text-center text-text-muted text-sm">
                     {t("noEvents")}
                   </td>
                 </tr>
@@ -77,21 +59,8 @@ export function UpcomingEventsTracker({ events = [] }: { events?: EventType[] })
                       <td className="text-text-muted">{formatDate(event.booking_date)}</td>
                       <td>
                         <div className="flex flex-col">
-                          <span className="font-semibold text-text-primary">৳{(event.advance_payment || 0).toLocaleString()}</span>
+                          <span className="font-semibold text-text-primary">৳{(event.revenue || event.advance_payment || 0).toLocaleString()}</span>
                           <span className="text-[10px] text-text-muted">/ ৳{(event.total_amount || 0).toLocaleString()}</span>
-                        </div>
-                      </td>
-                      <td>
-                        <div className="flex items-center gap-1">
-                          <button className="btn-ghost px-2 py-1 min-w-0 min-h-0 text-text-muted hover:text-brand-emerald">
-                            <Edit className="w-3.5 h-3.5" />
-                          </button>
-                          <button 
-                            onClick={() => handleDelete(event.id)}
-                            className="btn-ghost px-2 py-1 min-w-0 min-h-0 text-text-muted hover:text-semantic-red"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
                         </div>
                       </td>
                     </tr>

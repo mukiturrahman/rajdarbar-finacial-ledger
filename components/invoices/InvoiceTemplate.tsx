@@ -10,7 +10,7 @@ export function InvoiceTemplate({ invoice }: { invoice: Invoice }) {
       <div className="flex justify-between items-start mb-10">
         <div>
           <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-black text-sm" style={{ background: 'linear-gradient(135deg, #0d5c3f, #c9a84c)' }}>R</div>
+            <div className="w-10 h-10 flex items-center justify-center text-white bg-black font-black text-sm">R</div>
             <div><h1 className="text-xl font-bold text-slate-900">Rajdarbar</h1><p className="text-[0.5625rem] text-slate-500 tracking-wider uppercase">Convention Hall</p></div>
           </div>
           <p className="text-xs text-slate-500 mt-3">Rajdarbar Convention Hall<br />Dhaka, Bangladesh</p>

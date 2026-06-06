@@ -10,14 +10,14 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
     return (
       <div className="w-full">
         {label && (
-          <label className="block text-[0.8125rem] font-medium text-text-muted mb-1.5">
+          <label className="block text-[0.8125rem] font-medium text-text-muted mb-1.5 uppercase tracking-wide">
             {label}
           </label>
         )}
         <input
           ref={ref}
           className={`input-field ${
-            error ? "!border-semantic-red focus:!shadow-[0_0_0_3px_rgba(248,113,113,0.1)]" : ""
+            error ? "!border-semantic-red focus:!border-semantic-red" : ""
           } ${className}`}
           {...props}
         />

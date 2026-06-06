@@ -1,8 +1,24 @@
-const variants: Record<string, { bg: string; color: string }> = {
-  received: { bg: 'rgba(52,211,153,0.10)', color: '#34d399' }, pending: { bg: 'rgba(251,191,36,0.10)', color: '#fbbf24' }, paid: { bg: 'rgba(52,211,153,0.10)', color: '#34d399' }, rejected: { bg: 'rgba(248,113,113,0.10)', color: '#f87171' }, 'on hold': { bg: 'rgba(148,163,184,0.10)', color: '#94a3b8' }, active: { bg: 'rgba(52,211,153,0.10)', color: '#34d399' }, paused: { bg: 'rgba(148,163,184,0.10)', color: '#94a3b8' }, owner: { bg: 'rgba(201,168,76,0.12)', color: '#c9a84c' }, editor: { bg: 'rgba(165,180,252,0.10)', color: '#a5b4fc' }, viewer: { bg: 'rgba(148,163,184,0.10)', color: '#94a3b8' },
+const variants: Record<string, { bg: string; color: string; border: string }> = {
+  received: { bg: 'rgba(16,185,129,0.15)', color: '#10b981', border: 'rgba(16,185,129,0.2)' }, 
+  pending: { bg: 'rgba(245,158,11,0.15)', color: '#f59e0b', border: 'rgba(245,158,11,0.2)' }, 
+  paid: { bg: 'rgba(16,185,129,0.15)', color: '#10b981', border: 'rgba(16,185,129,0.2)' }, 
+  rejected: { bg: 'rgba(244,63,94,0.15)', color: '#f43f5e', border: 'rgba(244,63,94,0.2)' }, 
+  'on hold': { bg: 'rgba(148,163,184,0.15)', color: '#94a3b8', border: 'rgba(148,163,184,0.2)' }, 
+  active: { bg: 'rgba(16,185,129,0.15)', color: '#10b981', border: 'rgba(16,185,129,0.2)' }, 
+  paused: { bg: 'rgba(148,163,184,0.15)', color: '#94a3b8', border: 'rgba(148,163,184,0.2)' }, 
+  owner: { bg: 'rgba(59,130,246,0.15)', color: '#3b82f6', border: 'rgba(59,130,246,0.2)' }, 
+  editor: { bg: 'rgba(148,163,184,0.15)', color: '#cbd5e1', border: 'rgba(148,163,184,0.2)' }, 
+  viewer: { bg: 'rgba(71,85,105,0.15)', color: '#94a3b8', border: 'rgba(71,85,105,0.2)' },
 }
 export function Badge({ variant }: { variant: string }) {
   const key = variant.toLowerCase()
   const style = variants[key] || variants.pending
-  return (<span className="inline-flex px-2 py-0.5 rounded-md text-[0.5625rem] font-bold uppercase tracking-[0.06em]" style={{ backgroundColor: style.bg, color: style.color }}>{variant}</span>)
+  return (
+    <span 
+      className="inline-flex px-2 py-0.5 text-[0.625rem] font-semibold uppercase tracking-wider rounded-md" 
+      style={{ backgroundColor: style.bg, border: `1px solid ${style.border}`, color: style.color }}
+    >
+      {variant}
+    </span>
+  )
 }
