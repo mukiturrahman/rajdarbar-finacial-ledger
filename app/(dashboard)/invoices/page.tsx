@@ -23,8 +23,8 @@ export default async function ReceiptsPage() {
         <div><h1>Receipts</h1><p className="text-[0.8125rem] text-text-muted mt-0.5">{receipts.length} expenses logged</p></div>
         <Link href="/invoices/new" className="btn-primary"><Plus size={16} />Log Expense</Link>
       </div>
-      <div className="flex-1 overflow-y-auto p-4 md:p-0">
-        <div className="table-wrap">
+      <div className="flex-1 overflow-y-auto p-4 md:py-6 md:px-0">
+        <div className="table-wrap md:!mt-0">
           <table className="data-table">
             <thead><tr><th>Date</th><th>Category</th><th>Description</th><th>Amount</th><th>Status</th><th>Receipt</th></tr></thead>
             <tbody>

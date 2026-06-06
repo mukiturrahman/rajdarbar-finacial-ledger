@@ -10,7 +10,7 @@ export function ActiveEventsPanel({ events }: { events: EventProfit[] }) {
 
   return (
     <div className="glass p-5">
-      <h3 className="text-base font-bold text-text-primary mb-4">{t("eventProfitability")}</h3>
+      <h3 className="text-base font-bold text-text-primary mb-4 pb-3 border-b border-border">{t("eventProfitability")}</h3>
       <div className="flex flex-col gap-3">
         {sorted.length === 0 ? (
           <p className="text-sm text-text-muted">{t("noEventsYet")}</p>

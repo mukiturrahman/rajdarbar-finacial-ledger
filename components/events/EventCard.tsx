@@ -18,7 +18,7 @@ export function EventCard({ event, profit, onDelete, onEdit, onPaidInFull, onCli
 
   return (
     <div
-      className="bg-bg-void border border-border p-5 flex flex-col gap-3 hover:border-border-hover transition-colors relative group cursor-pointer"
+      className="glass p-5 flex flex-col gap-3 hover:border-border-hover transition-all relative group cursor-pointer"
       onClick={() => onClick?.(event.id)}
     >
       <div className="flex items-start justify-between">
@@ -61,7 +61,7 @@ export function EventCard({ event, profit, onDelete, onEdit, onPaidInFull, onCli
             {canMutate && onPaidInFull && (
               <button
                 onClick={() => onPaidInFull(event.id)}
-                className="text-[0.6875rem] font-bold px-3 py-1.5 border border-border text-semantic-green hover:bg-bg-hover transition-colors"
+                className="text-[0.6875rem] font-bold px-3 py-1.5 rounded-xl border border-border text-semantic-green hover:bg-bg-hover transition-colors"
               >
                 Paid in Full
               </button>

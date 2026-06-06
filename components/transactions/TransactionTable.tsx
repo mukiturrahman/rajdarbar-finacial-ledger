@@ -78,8 +78,8 @@ export function TransactionTable({ initialTxns, config, events, projects }: Prop
         </select>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 md:p-0">
-        <div className="table-wrap">
+      <div className="flex-1 overflow-y-auto p-4 md:py-6 md:px-0">
+        <div className="table-wrap md:!mt-0">
           <table className="data-table">
             <thead><tr>
               <th>Date</th><th>Description</th><th>Event</th><th>Type</th><th>Amount</th><th>Method</th><th>Status</th>

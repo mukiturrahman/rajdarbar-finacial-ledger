@@ -18,7 +18,7 @@ export default function HealthBanner({ data }: { data: MonthlyPL[] }) {
   return (
     <div className="glass p-5 flex flex-col md:flex-row md:items-center gap-4 md:gap-8">
       <div className="flex items-center gap-3">
-        <span className="inline-flex px-3 py-1 rounded-lg text-[0.6875rem] font-bold uppercase tracking-wider" style={{ background: healthBg, color: healthColor, border: `1px solid ${healthBorder}` }}>{health}</span>
+        <span className="inline-flex px-3 py-1 text-[0.6875rem] font-bold uppercase tracking-wider" style={{ background: healthBg, color: healthColor, border: `1px solid ${healthBorder}` }}>{health}</span>
         <span className="text-sm text-text-muted">YTD Financial Health</span>
       </div>
       <div className="flex flex-wrap gap-6">

@@ -10,7 +10,7 @@ export function RecentTransactions({ transactions }: { transactions: Transaction
 
   return (
     <div className="glass p-5">
-      <h3 className="text-base font-bold text-text-primary mb-4">{t("recentTransactions")}</h3>
+      <h3 className="text-base font-bold text-text-primary mb-4 pb-3 border-b border-border">{t("recentTransactions")}</h3>
       <div className="flex flex-col gap-2">
         {transactions.length === 0 ? (
           <p className="text-sm text-text-muted">{t("noTransactionsYet")}</p>

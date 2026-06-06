@@ -10,7 +10,7 @@ const accentColors: Record<string, { bg: string; border: string; text: string }>
 export function KpiCard({ label, value, accent = 'default', sub }: KpiCardProps) {
   const colors = accentColors[accent] || accentColors.default
   return (
-    <div className="p-5 flex flex-col gap-1.5 transition-all duration-300 hover:-translate-y-1 cursor-default rounded-xl shadow-glass-sm" style={{ backgroundColor: colors.bg, border: `1px solid ${colors.border}` }}>
+    <div className="p-5 flex flex-col gap-1.5 transition-all duration-300 hover:-translate-y-1 cursor-default rounded-2xl backdrop-blur-md" style={{ backgroundColor: colors.bg, border: `1px solid ${colors.border}` }}>
       <p className="text-[0.6875rem] font-semibold text-text-muted uppercase tracking-wider">{label}</p>
       <p className="text-2xl font-semibold font-mono tabular-nums tracking-tight" style={{ color: colors.text }}>{value}</p>
       {sub && <p className="text-[0.75rem] text-text-muted mt-1">{sub}</p>}

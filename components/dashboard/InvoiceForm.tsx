@@ -19,12 +19,7 @@ export function InvoiceForm() {
     eventDate: "",
     guestsCount: "" as number | string,
     hallCharge: "" as number | string,
-    gasCharge: "" as number | string,
-    cateringEnabled: false,
-    cateringCost: "" as number | string,
     waitstaffQuantity: "" as number | string,
-    waitstaffRate: "" as number | string,
-    eventCharge: "" as number | string,
     lightingCharge: "" as number | string,
     advancePayment: "" as number | string,
     remainingAmount: "" as number | string,
@@ -50,14 +45,10 @@ export function InvoiceForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    const cateringTotal = formData.cateringEnabled ? (Number(formData.cateringCost) || 0) : 0;
-    const waitstaffTotal = Number(formData.waitstaffRate) || 0; // Treated as absolute total charged to client
+    const waitstaffTotal = (Number(formData.waitstaffQuantity) || 0) * 500;
     const calculatedTotal =
       (Number(formData.hallCharge) || 0) +
-      (Number(formData.gasCharge) || 0) +
-      cateringTotal +
       waitstaffTotal +
-      (Number(formData.eventCharge) || 0) +
       (Number(formData.lightingCharge) || 0);
 
     setTotalAmount(calculatedTotal);
@@ -65,9 +56,7 @@ export function InvoiceForm() {
     // Auto-calculate remaining amount if total or advance changes
     setFormData(prev => ({ ...prev, remainingAmount: calculatedTotal - (Number(prev.advancePayment) || 0) }));
   }, [
-    formData.hallCharge, formData.gasCharge, formData.cateringEnabled, 
-    formData.cateringCost, formData.waitstaffRate, formData.eventCharge, 
-    formData.lightingCharge, formData.advancePayment
+    formData.hallCharge, formData.waitstaffQuantity, formData.lightingCharge, formData.advancePayment
   ]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -141,30 +130,17 @@ export function InvoiceForm() {
         </CardHeader>
         <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Input type="number" label={t("hallCharge")} name="hallCharge" value={formData.hallCharge} onChange={handleChange} />
-          <Input type="number" label={t("gasCharge")} name="gasCharge" value={formData.gasCharge} onChange={handleChange} />
-          
-          <div className="md:col-span-2 flex items-center space-x-2 border p-3 border-border bg-bg-void">
-            <input 
-              type="checkbox" 
-              name="cateringEnabled" 
-              checked={formData.cateringEnabled} 
-              onChange={handleChange}
-              className="h-4 w-4 rounded border-white/20 bg-transparent text-brand-emerald focus:ring-brand-emerald cursor-pointer"
-            />
-            <label className="text-[0.8125rem] font-medium text-text-primary">{t("catering")}</label>
-            {formData.cateringEnabled && (
-              <Input type="number" placeholder="Cost" name="cateringCost" value={formData.cateringCost} onChange={handleChange} className="ml-4 w-48" />
-            )}
-          </div>
-
-          <div className="md:col-span-2 grid grid-cols-2 gap-4 border p-3 border-border bg-bg-void">
-            <div className="col-span-2 text-[0.8125rem] font-medium text-text-primary">{t("waitstaff")}</div>
-            <Input type="number" label={t("quantity")} name="waitstaffQuantity" value={formData.waitstaffQuantity} onChange={handleChange} />
-            <Input type="number" label={t("rate")} name="waitstaffRate" value={formData.waitstaffRate} onChange={handleChange} />
-          </div>
-
-          <Input type="number" label={t("eventCharge")} name="eventCharge" value={formData.eventCharge} onChange={handleChange} />
           <Input type="number" label={t("lightingCharge")} name="lightingCharge" value={formData.lightingCharge} onChange={handleChange} />
+
+          <div className="md:col-span-2 grid grid-cols-2 gap-4 border p-4 border-border glass rounded-xl">
+            <div className="col-span-2 flex justify-between items-center text-[0.8125rem] font-medium text-text-primary">
+              <span>{t("waitstaff")} (Koyjon Boy)</span>
+              <span className="text-brand-gold font-mono">Rate: ৳500 / person</span>
+            </div>
+            <div className="col-span-2">
+              <Input type="number" label={t("quantity")} name="waitstaffQuantity" value={formData.waitstaffQuantity} onChange={handleChange} />
+            </div>
+          </div>
         </CardContent>
       </Card>
 
@@ -172,12 +148,12 @@ export function InvoiceForm() {
         <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6">
           <Input type="number" label={t("advancePayment")} name="advancePayment" value={formData.advancePayment} onChange={handleChange} />
           
-          <div className="p-4 border border-border bg-bg-void flex flex-col justify-center">
+          <div className="p-4 border border-border glass rounded-xl flex flex-col justify-center">
             <span className="text-[0.8125rem] font-medium text-text-muted">{t("totalAmount")}</span>
             <span className="text-2xl font-bold text-text-primary">৳{totalAmount.toLocaleString()}</span>
           </div>
           
-          <div className="p-4 border border-border bg-semantic-green-dim">
+          <div className="p-4 border border-border glass rounded-xl">
             <label className="block text-[0.8125rem] font-medium text-brand-emerald mb-1.5">{t("remainingBalance")}</label>
             <div className="flex items-center">
               <span className="text-xl font-bold text-brand-emerald mr-1">৳</span>

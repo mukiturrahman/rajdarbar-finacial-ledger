@@ -52,7 +52,7 @@ export function UpcomingEventsTracker({ events = [] }: { events?: EventClient[] 
                         {event.name}
                       </td>
                       <td>
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-semantic-indigo/10 text-semantic-indigo text-xs font-medium">
+                        <span className="inline-flex items-center px-2 py-0.5 bg-semantic-indigo/10 text-semantic-indigo text-xs font-medium">
                           {formatDate(event.event_date)}
                         </span>
                       </td>

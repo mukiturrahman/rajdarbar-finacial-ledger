@@ -55,9 +55,9 @@ export function SettingsTabs({ profile, allProfiles: initialProfiles, companyNam
 
   return (
     <div className="max-w-3xl mx-auto">
-      <div className="flex gap-1 mb-6 p-1 rounded-xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
+      <div className="flex gap-1 mb-6 p-1" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
         {(['general', ...(isOwner ? ['team'] : [])] as const).map(t => (
-          <button key={t} onClick={() => setTab(t as 'general' | 'team')} className={`flex-1 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all capitalize ${tab === t ? 'text-white' : 'text-text-muted hover:text-text-primary'}`}
+          <button key={t} onClick={() => setTab(t as 'general' | 'team')} className={`flex-1 px-4 py-2.5 text-sm font-semibold transition-all capitalize ${tab === t ? 'text-white' : 'text-text-muted hover:text-text-primary'}`}
             style={tab === t ? { background: 'linear-gradient(135deg, rgba(13,92,63,0.15), rgba(201,168,76,0.10))', border: '1px solid rgba(201,168,76,0.12)' } : undefined}>
             {t}
           </button>
@@ -80,7 +80,7 @@ export function SettingsTabs({ profile, allProfiles: initialProfiles, companyNam
             <h3 className="text-sm font-bold text-text-primary mb-4">Event Types</h3>
             <div className="flex flex-wrap gap-2 mb-3">
               {eventTypes.map(type => (
-                <span key={type} className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-sm text-text-primary">
+                <span key={type} className="inline-flex items-center gap-1 px-3 py-1.5 bg-white/5 border border-white/10 text-sm text-text-primary">
                   {type}
                   <button onClick={() => removeEventType(type)} className="text-text-muted hover:text-semantic-red ml-1"><UserX size={12} /></button>
                 </span>
@@ -117,7 +117,7 @@ export function SettingsTabs({ profile, allProfiles: initialProfiles, companyNam
           <h3 className="text-sm font-bold text-text-primary mb-4">Team Members</h3>
           <div className="flex flex-col gap-3">
             {profiles.map(p => (
-              <div key={p.id} className="flex items-center justify-between py-3 px-4 rounded-xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)' }}>
+              <div key={p.id} className="flex items-center justify-between py-3 px-4" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)' }}>
                 <div>
                   <p className="text-sm font-semibold text-text-primary">{p.full_name}</p>
                   <p className="text-[0.6875rem] text-text-muted">{p.email}</p>
