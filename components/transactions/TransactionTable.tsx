@@ -23,7 +23,7 @@ export function TransactionTable({ initialTxns, config, events, projects }: Prop
   const { toast } = useToast()
   const router = useRouter()
   const profile = useProfile()
-  const canMutate = !!(profile && ['owner', 'editor'].includes(profile.role))
+  const canMutate = !!(profile && ['owner', 'editor', 'manager'].includes(profile.role))
 
   const [txns] = useState(initialTxns)
   const [search, setSearch] = useState('')

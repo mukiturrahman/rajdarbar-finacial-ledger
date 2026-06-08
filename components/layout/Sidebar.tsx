@@ -24,7 +24,7 @@ export async function Sidebar() {
     profile = data as Profile | null
   }
   return (
-    <aside className="hidden md:flex flex-col w-[260px] min-h-[100dvh] border-r border-border bg-bg-void">
+    <aside className="hidden md:flex flex-col w-[260px] min-h-[100dvh] border-r border-border bg-bg-void fixed inset-y-0 left-0 z-50">
       <div className="p-5 border-b border-border"><SidebarLogo /></div>
       {profile && (
         <div className="px-5 py-4 border-b border-border">
@@ -37,7 +37,10 @@ export async function Sidebar() {
       )}
       <nav className="flex-1 px-4 py-6 flex flex-col gap-1 overflow-y-auto hide-scrollbar">
         <p className="px-3 mb-3 text-[0.5625rem] font-bold text-text-muted uppercase tracking-widest">Finance</p>
-        {navItems.map(item => (<NavItem key={item.href} {...item} />))}
+        {navItems.filter(item => {
+          if (profile?.role === 'manager' && (item.labelKey === 'monthlyPL' || item.labelKey === 'settings')) return false;
+          return true;
+        }).map(item => (<NavItem key={item.href} {...item} />))}
       </nav>
       <div className="p-4 border-t border-border flex flex-col gap-4">
         <LanguageToggle />

@@ -1,4 +1,4 @@
-export type Role = 'owner' | 'editor' | 'viewer' | 'pending'
+export type Role = 'owner' | 'editor' | 'viewer' | 'manager' | 'pending'
 export type ProfileStatus = 'pending' | 'active' | 'rejected'
 
 export interface Profile {

@@ -18,7 +18,7 @@ export function EventsView({ events: initialEvents, transactions }: Props) {
   const { toast } = useToast()
   const router = useRouter()
   const profile = useProfile()
-  const canMutate = !!(profile && ['owner', 'editor'].includes(profile.role))
+  const canMutate = !!(profile && ['owner', 'editor', 'manager'].includes(profile.role))
   const [events, setEvents] = useState(initialEvents)
   const [editingEvent, setEditingEvent] = useState<EventClient | null>(null)
   const [selectedEvent, setSelectedEvent] = useState<EventClient | null>(null)
