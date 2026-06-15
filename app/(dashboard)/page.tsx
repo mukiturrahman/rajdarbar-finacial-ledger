@@ -14,22 +14,25 @@ export default async function DashboardPage() {
     { data: eventsRaw },
     { count: projectsCount },
   ] = await Promise.all([
-    supabase.from('transactions').select('*').is('deleted_at', null).order('date', { ascending: false }).order('created_at', { ascending: false }).limit(50),
-    supabase.from('events').select('id, name, event_type, party_name, booking_date, event_date, advance_payment, total_amount, created_at')
-      .gte('event_date', new Date().toISOString().split('T')[0])
-      .order('event_date', { ascending: true }),
+    supabase.from('transactions').select('*').is('deleted_at', null).order('date', { ascending: false }).order('created_at', { ascending: false }),
+    supabase.from('events').select('id, name, event_type, party_name, booking_date, event_date, advance_payment, total_amount, created_at').order('event_date', { ascending: true }),
     supabase.from('projects').select('*', { count: 'exact', head: true }),
   ])
   const txns = (txnsRaw ?? []) as Transaction[]
+  const allEvents = (eventsRaw ?? []) as EventClient[]
+
+  // Filter upcoming events for UI panel/tracker
+  const todayStr = new Date().toISOString().split('T')[0]
+  const upcomingEvents = allEvents.filter(e => e.event_date && e.event_date >= todayStr)
+
   // Ensure we pass the required fields to events
-  const eventsRawData = (eventsRaw ?? []) as EventClient[]
-  const events = eventsRawData.map(e => ({
+  const events = upcomingEvents.map(e => ({
     ...e,
     revenue: computeEventProfit(e, txns).revenue
   }))
   const activeProjectsCount = projectsCount ?? 0
 
-  const kpis = computeKPIs(txns, activeProjectsCount)
+  const kpis = computeKPIs(txns, activeProjectsCount, allEvents)
   const eventProfits = events.map(e => computeEventProfit(e, txns))
   const recent = txns.slice(0, 6)
 

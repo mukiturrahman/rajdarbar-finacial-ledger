@@ -25,18 +25,28 @@ export function BookingReceiptForm() {
     gasCharge: "" as number | string,
     advancePayment: "" as number | string,
     remainingAmount: "" as number | string,
+    waitstaffChargeRate: "" as number | string,
+    waitstaffCostRate: "" as number | string,
   });
 
   const [eventTypes, setEventTypes] = useState(["Wedding", "Birthday", "Corporate", "Meeting", "Other"]);
 
   useEffect(() => {
     import("@/app/actions/booking-receipt").then((m) => {
-      m.getEventTypes().then((types) => {
-        if (types && types.length > 0) {
-          setEventTypes(types);
-          if (!types.includes(formData.eventType)) {
-            setFormData(prev => ({ ...prev, eventType: types[0] }));
-          }
+      m.getBookingSettings().then((settings) => {
+        if (settings) {
+          setEventTypes(settings.eventTypes);
+          setFormData((prev) => {
+            const next = {
+              ...prev,
+              waitstaffChargeRate: settings.waitstaffChargeRate,
+              waitstaffCostRate: settings.waitstaffCostRate,
+            };
+            if (!settings.eventTypes.includes(prev.eventType)) {
+              next.eventType = settings.eventTypes[0];
+            }
+            return next;
+          });
         }
       });
     });
@@ -47,7 +57,7 @@ export function BookingReceiptForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    const waitstaffTotal = (Number(formData.waitstaffQuantity) || 0) * 500;
+    const waitstaffTotal = (Number(formData.waitstaffQuantity) || 0) * (Number(formData.waitstaffChargeRate) || 0);
     const calculatedTotal =
       (Number(formData.hallCharge) || 0) +
       waitstaffTotal +
@@ -58,14 +68,18 @@ export function BookingReceiptForm() {
     // Auto-calculate remaining amount if total or advance changes
     setFormData(prev => ({ ...prev, remainingAmount: calculatedTotal - (Number(prev.advancePayment) || 0) }));
   }, [
-    formData.hallCharge, formData.waitstaffQuantity, formData.gasCharge, formData.advancePayment
+    formData.hallCharge, formData.waitstaffQuantity, formData.waitstaffChargeRate, formData.gasCharge, formData.advancePayment
   ]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
+    let val: any = value;
+    if (name === "mobileNumber") {
+      val = value.replace(/[^0-9]/g, "");
+    }
     setFormData((prev) => ({
       ...prev,
-      [name]: type === "checkbox" ? checked : type === "number" ? (value === "" ? "" : Number(value)) : value,
+      [name]: type === "checkbox" ? checked : type === "number" ? (value === "" ? "" : Number(value)) : val,
     }));
   };
 
@@ -136,7 +150,7 @@ export function BookingReceiptForm() {
           <div className="md:col-span-2 grid grid-cols-2 gap-4 border p-4 border-border glass rounded-xl">
             <div className="col-span-2 flex justify-between items-center text-[0.8125rem] font-medium text-text-primary">
               <span>{t("waitstaff")} (Koyjon Boy)</span>
-              <span className="text-brand-gold font-mono">Rate: ৳500 / person</span>
+              <span className="text-brand-gold font-mono">Rate: ৳{formData.waitstaffChargeRate || 500} / person</span>
             </div>
             <div className="col-span-2">
               <Input type="number" label={t("quantity")} name="waitstaffQuantity" value={formData.waitstaffQuantity} onChange={handleChange} />
@@ -159,10 +173,21 @@ export function BookingReceiptForm() {
             <div className="flex items-center">
               <span className="text-xl font-bold text-brand-emerald mr-1">৳</span>
               <input 
-                type="number" 
+                type="text" 
+                inputMode="decimal"
                 name="remainingAmount" 
                 value={formData.remainingAmount} 
-                onChange={handleChange}
+                onChange={(e) => {
+                  let val = e.target.value.replace(/[^0-9.-]/g, "");
+                  if (val.indexOf("-") > 0) {
+                    val = val.charAt(0) + val.slice(1).replace(/-/g, "");
+                  }
+                  const parts = val.split(".");
+                  if (parts.length > 2) {
+                    val = parts[0] + "." + parts.slice(1).join("");
+                  }
+                  setFormData(prev => ({ ...prev, remainingAmount: val }));
+                }}
                 className="bg-transparent border-none text-xl font-bold text-brand-emerald focus:ring-0 p-0 w-full"
               />
             </div>

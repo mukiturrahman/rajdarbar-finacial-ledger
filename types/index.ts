@@ -22,6 +22,8 @@ export interface EventClient {
   guests_count?: number
   revenue?: number
   remaining_amount?: number
+  address?: string
+  mobile_number?: string
   created_at: string
 }
 

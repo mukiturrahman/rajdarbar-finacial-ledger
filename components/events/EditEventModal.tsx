@@ -21,6 +21,7 @@ function getInitialForm(event: EventClient | null) {
     name: '', party_name: '', event_type: '', booking_date: '',
     event_date: '', guests_count: '' as number | string,
     total_amount: '' as number | string, advance_payment: '' as number | string,
+    address: '', mobile_number: '',
   }
   return {
     name: event.name || '',
@@ -31,6 +32,8 @@ function getInitialForm(event: EventClient | null) {
     guests_count: event.guests_count ?? '' as number | string,
     total_amount: event.total_amount ?? '' as number | string,
     advance_payment: event.advance_payment ?? '' as number | string,
+    address: event.address || '',
+    mobile_number: event.mobile_number || '',
   }
 }
 
@@ -68,6 +71,8 @@ export function EditEventModal({ open, onClose, event, onUpdate }: Props) {
       total_amount: Number(form.total_amount) || 0,
       advance_payment: Number(form.advance_payment) || 0,
       remaining_amount: remainingAmount,
+      address: form.address || null,
+      mobile_number: form.mobile_number || null,
     }
 
     const supabase = getSupabaseClient()
@@ -117,7 +122,16 @@ export function EditEventModal({ open, onClose, event, onUpdate }: Props) {
           </div>
           <div>
             <label className="block text-[0.6875rem] font-bold text-text-muted mb-1.5 uppercase tracking-[0.08em]">{t("guestsCount")}</label>
-            <input type="number" value={form.guests_count} onChange={e => setForm({...form, guests_count: e.target.value === "" ? "" : Number(e.target.value)})} className="input-field" />
+            <input 
+              type="text" 
+              inputMode="numeric" 
+              value={form.guests_count} 
+              onChange={e => {
+                const val = e.target.value.replace(/[^0-9]/g, "");
+                setForm({...form, guests_count: val === "" ? "" : Number(val)});
+              }} 
+              className="input-field" 
+            />
           </div>
           <div>
             <label className="block text-[0.6875rem] font-bold text-text-muted mb-1.5 uppercase tracking-[0.08em]">{t("bookingDate")}</label>
@@ -127,14 +141,59 @@ export function EditEventModal({ open, onClose, event, onUpdate }: Props) {
             <label className="block text-[0.6875rem] font-bold text-text-muted mb-1.5 uppercase tracking-[0.08em]">{t("eventDate")}</label>
             <input type="date" value={form.event_date} onChange={e => setForm({...form, event_date: e.target.value})} className="input-field" />
           </div>
+          <div>
+            <label className="block text-[0.6875rem] font-bold text-text-muted mb-1.5 uppercase tracking-[0.08em]">{t("mobileNumber")}</label>
+            <input 
+              type="text" 
+              inputMode="numeric" 
+              value={form.mobile_number} 
+              onChange={e => setForm({...form, mobile_number: e.target.value.replace(/[^0-9]/g, "")})} 
+              className="input-field" 
+            />
+          </div>
+          <div>
+            <label className="block text-[0.6875rem] font-bold text-text-muted mb-1.5 uppercase tracking-[0.08em]">{t("address")}</label>
+            <input 
+              type="text" 
+              value={form.address} 
+              onChange={e => setForm({...form, address: e.target.value})} 
+              className="input-field" 
+            />
+          </div>
           <div className="md:col-span-2 grid grid-cols-3 gap-4">
             <div>
               <label className="block text-[0.6875rem] font-bold text-text-muted mb-1.5 uppercase tracking-[0.08em]">{t("totalAmount")} (৳)</label>
-              <input type="number" value={form.total_amount} onChange={e => setForm({...form, total_amount: e.target.value === "" ? "" : Number(e.target.value)})} className="input-field" />
+              <input 
+                type="text" 
+                inputMode="decimal" 
+                value={form.total_amount} 
+                onChange={e => {
+                  let val = e.target.value.replace(/[^0-9.]/g, "");
+                  const parts = val.split(".");
+                  if (parts.length > 2) {
+                    val = parts[0] + "." + parts.slice(1).join("");
+                  }
+                  setForm({...form, total_amount: val === "" ? "" : Number(val)});
+                }} 
+                className="input-field" 
+              />
             </div>
             <div>
               <label className="block text-[0.6875rem] font-bold text-text-muted mb-1.5 uppercase tracking-[0.08em]">{t("advancePayment")} (৳)</label>
-              <input type="number" value={form.advance_payment} onChange={e => setForm({...form, advance_payment: e.target.value === "" ? "" : Number(e.target.value)})} className="input-field" />
+              <input 
+                type="text" 
+                inputMode="decimal" 
+                value={form.advance_payment} 
+                onChange={e => {
+                  let val = e.target.value.replace(/[^0-9.]/g, "");
+                  const parts = val.split(".");
+                  if (parts.length > 2) {
+                    val = parts[0] + "." + parts.slice(1).join("");
+                  }
+                  setForm({...form, advance_payment: val === "" ? "" : Number(val)});
+                }} 
+                className="input-field" 
+              />
             </div>
             <div>
               <label className="block text-[0.6875rem] font-bold text-brand-gold mb-1.5 uppercase tracking-[0.08em]">{t("remainingBalance")} (৳)</label>

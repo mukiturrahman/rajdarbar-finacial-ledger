@@ -56,6 +56,12 @@ export function EventDetailModal({ open, onClose, event, profit, transactions }:
           {event.total_amount != null && event.total_amount > 0 && (
             <div><span className="text-text-muted">Total:</span> <span className="text-text-primary font-medium font-mono">{formatTaka(event.total_amount)}</span></div>
           )}
+          {event.mobile_number && (
+            <div><span className="text-text-muted">Mobile:</span> <span className="text-text-primary font-medium">{event.mobile_number}</span></div>
+          )}
+          {event.address && (
+            <div className="col-span-2"><span className="text-text-muted">Address:</span> <span className="text-text-primary font-medium">{event.address}</span></div>
+          )}
           <div className="col-span-2 flex items-center gap-2 mt-1">
             <span className="text-text-muted">Payment:</span>
             {isPaid ? (

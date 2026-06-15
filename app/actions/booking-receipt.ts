@@ -17,6 +17,8 @@ const EventFormSchema = z.object({
   remainingAmount: z.coerce.number().default(0),
   address: z.string().optional(),
   mobileNumber: z.string().optional(),
+  waitstaffChargeRate: z.coerce.number().nonnegative().default(500),
+  waitstaffCostRate: z.coerce.number().nonnegative().default(450),
 });
 
 export async function getEventTypes() {
@@ -30,6 +32,34 @@ export async function getEventTypes() {
     }
   }
   return ["Wedding", "Birthday", "Corporate", "Meeting", "Other"];
+}
+
+export async function getBookingSettings() {
+  const supabase = await getSupabaseServer();
+  const { data: configs } = await supabase.from('app_config').select('*').in('key', ['event_types', 'waitstaff_charge_rate', 'waitstaff_cost_rate']);
+  
+  let eventTypes: string[] = ["Wedding", "Birthday", "Corporate", "Meeting", "Other"];
+  let waitstaffChargeRate = 500;
+  let waitstaffCostRate = 450;
+  
+  if (configs) {
+    const typesConfig = configs.find(c => c.key === 'event_types');
+    if (typesConfig?.value) {
+      try {
+        eventTypes = JSON.parse(typesConfig.value);
+      } catch (e) {
+        // ignore
+      }
+    }
+    
+    const chargeConfig = configs.find(c => c.key === 'waitstaff_charge_rate');
+    if (chargeConfig?.value) waitstaffChargeRate = Number(chargeConfig.value);
+    
+    const costConfig = configs.find(c => c.key === 'waitstaff_cost_rate');
+    if (costConfig?.value) waitstaffCostRate = Number(costConfig.value);
+  }
+  
+  return { eventTypes, waitstaffChargeRate, waitstaffCostRate };
 }
 
 export async function createReceiptAndEvent(rawFormData: any, totalAmount: number) {
@@ -46,8 +76,8 @@ export async function createReceiptAndEvent(rawFormData: any, totalAmount: numbe
     return { success: false, error: "Unauthorized" };
   }
 
-  // Calculate expense for waitstaff based on 500 per boy cost
-  const waitstaffExpense = formData.waitstaffQuantity * 500;
+  // Calculate expense for waitstaff based on the specified cost rate
+  const waitstaffExpense = formData.waitstaffQuantity * formData.waitstaffCostRate;
 
   // 1. Create the Event
   const eventName = `${formData.eventType} - ${formData.partyName}`;
@@ -63,6 +93,8 @@ export async function createReceiptAndEvent(rawFormData: any, totalAmount: numbe
       total_amount: totalAmount || 0,
       advance_payment: formData.advancePayment || 0,
       remaining_amount: formData.remainingAmount || 0,
+      address: formData.address || null,
+      mobile_number: formData.mobileNumber || null,
     })
     .select()
     .single();

@@ -1,4 +1,4 @@
-import type { Transaction, KpiData, EventProfit, MonthlyPL } from '@/types'
+import type { Transaction, KpiData, EventProfit, MonthlyPL, EventClient } from '@/types'
 
 const sum = (txns: Transaction[]) =>
   txns.reduce((acc, t) => acc + (t.amount || 0), 0)
@@ -6,6 +6,7 @@ const sum = (txns: Transaction[]) =>
 export function computeKPIs(
   txns: Transaction[],
   activeProjectCount: number,
+  events?: EventClient[],
 ): KpiData {
   const active = txns.filter((t) => t.deleted_at === null)
 
@@ -16,7 +17,12 @@ export function computeKPIs(
   const allIncomes = active.filter((t) => t.type === 'Income')
 
   const fund = sum(settledIncomes) - sum(settledExpenses)
-  const estimatedRevenue = sum(allIncomes)
+  
+  // Sum of total_amount of all events, fallback to sum of all income transactions if events not provided
+  const estimatedRevenue = events
+    ? events.reduce((acc, e) => acc + (e.total_amount || 0), 0)
+    : sum(allIncomes)
+    
   const revenue = sum(settledIncomes)
   const expenses = sum(settledExpenses)
   const net = revenue - expenses

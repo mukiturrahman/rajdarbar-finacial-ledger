@@ -71,7 +71,25 @@ export function AddTransactionModal({ open, onClose, editTxn, events, projects, 
         </div>
         <div><label className="block text-[0.6875rem] font-bold text-text-muted mb-1.5 uppercase tracking-[0.08em]">{t("description")}</label><input type="text" value={form.description} onChange={e => setForm({...form, description: e.target.value})} required className="input-field" placeholder={t("description")} /></div>
         <div className="grid grid-cols-2 gap-4">
-          <div><label className="block text-[0.6875rem] font-bold text-text-muted mb-1.5 uppercase tracking-[0.08em]">{t("amount")} (৳)</label><input type="number" step="0.01" min="0" value={form.amount} onChange={e => setForm({...form, amount: e.target.value})} required className="input-field" placeholder="0.00" /></div>
+          <div>
+            <label className="block text-[0.6875rem] font-bold text-text-muted mb-1.5 uppercase tracking-[0.08em]">{t("amount")} (৳)</label>
+            <input 
+              type="text" 
+              inputMode="decimal" 
+              value={form.amount} 
+              onChange={e => {
+                let val = e.target.value.replace(/[^0-9.]/g, "");
+                const parts = val.split(".");
+                if (parts.length > 2) {
+                  val = parts[0] + "." + parts.slice(1).join("");
+                }
+                setForm({...form, amount: val});
+              }} 
+              required 
+              className="input-field" 
+              placeholder="0.00" 
+            />
+          </div>
           <div><label className="block text-[0.6875rem] font-bold text-text-muted mb-1.5 uppercase tracking-[0.08em]">{t("method")}</label>
             <select value={form.method} onChange={e => setForm({...form, method: e.target.value})} className="input-field">
               {(config.methods || ['Cash', 'Bank Transfer', 'bKash', 'Nagad', 'Check']).map(m => <option key={m}>{m}</option>)}

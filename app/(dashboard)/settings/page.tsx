@@ -10,6 +10,8 @@ export default async function SettingsPage() {
   let allProfiles: Profile[] = []
   let companyName = 'Rajdarbar Convention Hall'
   let eventTypes: string[] = ['Wedding', 'Birthday', 'Corporate', 'Meeting', 'Other']
+  let waitstaffChargeRate = 500
+  let waitstaffCostRate = 450
 
   if (user) {
     const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single()
@@ -20,7 +22,7 @@ export default async function SettingsPage() {
       allProfiles = (all ?? []) as Profile[]
     }
 
-    const { data: configs } = await supabase.from('app_config').select('*').in('key', ['company_name', 'event_types'])
+    const { data: configs } = await supabase.from('app_config').select('*').in('key', ['company_name', 'event_types', 'waitstaff_charge_rate', 'waitstaff_cost_rate'])
     if (configs) {
       const nameConfig = configs.find(c => c.key === 'company_name')
       if (nameConfig?.value) companyName = nameConfig.value
@@ -33,6 +35,12 @@ export default async function SettingsPage() {
           // ignore
         }
       }
+
+      const chargeConfig = configs.find(c => c.key === 'waitstaff_charge_rate')
+      if (chargeConfig?.value) waitstaffChargeRate = Number(chargeConfig.value)
+
+      const costConfig = configs.find(c => c.key === 'waitstaff_cost_rate')
+      if (costConfig?.value) waitstaffCostRate = Number(costConfig.value)
     }
   }
 
@@ -40,7 +48,14 @@ export default async function SettingsPage() {
     <div className="flex flex-col h-full">
       <div className="page-header"><div><h1>Settings</h1><p className="text-[0.8125rem] text-text-muted mt-0.5">Manage your account and team</p></div></div>
       <div className="flex-1 overflow-y-auto p-4 md:py-6 md:px-8">
-        <SettingsTabs profile={currentProfile} allProfiles={allProfiles} companyName={companyName} initialEventTypes={eventTypes} />
+        <SettingsTabs 
+          profile={currentProfile} 
+          allProfiles={allProfiles} 
+          companyName={companyName} 
+          initialEventTypes={eventTypes} 
+          initialWaitstaffChargeRate={waitstaffChargeRate}
+          initialWaitstaffCostRate={waitstaffCostRate}
+        />
       </div>
     </div>
   )

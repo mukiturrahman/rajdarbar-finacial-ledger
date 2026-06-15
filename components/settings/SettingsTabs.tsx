@@ -6,9 +6,23 @@ import { Badge } from '@/components/ui/Badge'
 import { Save, Loader2, UserCheck, UserX } from 'lucide-react'
 import type { Profile, Role } from '@/types'
 
-interface Props { profile: Profile | null; allProfiles: Profile[]; companyName: string; initialEventTypes: string[] }
+interface Props { 
+  profile: Profile | null; 
+  allProfiles: Profile[]; 
+  companyName: string; 
+  initialEventTypes: string[];
+  initialWaitstaffChargeRate: number;
+  initialWaitstaffCostRate: number;
+}
 
-export function SettingsTabs({ profile, allProfiles: initialProfiles, companyName: initialName, initialEventTypes }: Props) {
+export function SettingsTabs({ 
+  profile, 
+  allProfiles: initialProfiles, 
+  companyName: initialName, 
+  initialEventTypes,
+  initialWaitstaffChargeRate,
+  initialWaitstaffCostRate
+}: Props) {
   const { toast } = useToast()
   const [tab, setTab] = useState<'general' | 'team'>('general')
   const [companyName, setCompanyName] = useState(initialName)
@@ -16,6 +30,8 @@ export function SettingsTabs({ profile, allProfiles: initialProfiles, companyNam
   const [saving, setSaving] = useState(false)
   const [eventTypes, setEventTypes] = useState(initialEventTypes)
   const [newEvent, setNewEvent] = useState('')
+  const [waitstaffChargeRate, setWaitstaffChargeRate] = useState(initialWaitstaffChargeRate)
+  const [waitstaffCostRate, setWaitstaffCostRate] = useState(initialWaitstaffCostRate)
   const isOwner = profile?.role === 'owner'
 
   const saveGeneralSettings = async () => {
@@ -23,6 +39,8 @@ export function SettingsTabs({ profile, allProfiles: initialProfiles, companyNam
     const supabase = getSupabaseClient()
     await supabase.from('app_config').upsert({ key: 'company_name', value: companyName })
     await supabase.from('app_config').upsert({ key: 'event_types', value: JSON.stringify(eventTypes) })
+    await supabase.from('app_config').upsert({ key: 'waitstaff_charge_rate', value: String(waitstaffChargeRate) })
+    await supabase.from('app_config').upsert({ key: 'waitstaff_cost_rate', value: String(waitstaffCostRate) })
     setSaving(false); toast('Settings updated')
   }
 
@@ -72,6 +90,46 @@ export function SettingsTabs({ profile, allProfiles: initialProfiles, companyNam
               <label className="block text-[0.6875rem] font-bold text-text-muted mb-1.5 uppercase tracking-[0.08em]">Company Name</label>
               <div className="flex gap-3">
                 <input value={companyName} onChange={e => setCompanyName(e.target.value)} className="input-field flex-1" />
+              </div>
+            </div>
+          </div>
+
+          <div className="border-t border-border-subtle pt-4">
+            <h3 className="text-sm font-bold text-text-primary mb-4">Waitstaff Rates</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-[0.6875rem] font-bold text-text-muted mb-1.5 uppercase tracking-[0.08em]">Waitstaff Charge Rate (৳ per person)</label>
+                <input 
+                  type="text" 
+                  inputMode="decimal" 
+                  value={waitstaffChargeRate} 
+                  onChange={e => {
+                    let val = e.target.value.replace(/[^0-9.]/g, "");
+                    const parts = val.split(".");
+                    if (parts.length > 2) {
+                      val = parts[0] + "." + parts.slice(1).join("");
+                    }
+                    setWaitstaffChargeRate(val === "" ? 0 : Number(val));
+                  }} 
+                  className="input-field w-full" 
+                />
+              </div>
+              <div>
+                <label className="block text-[0.6875rem] font-bold text-text-muted mb-1.5 uppercase tracking-[0.08em]">Waitstaff Cost Rate (৳ per person)</label>
+                <input 
+                  type="text" 
+                  inputMode="decimal" 
+                  value={waitstaffCostRate} 
+                  onChange={e => {
+                    let val = e.target.value.replace(/[^0-9.]/g, "");
+                    const parts = val.split(".");
+                    if (parts.length > 2) {
+                      val = parts[0] + "." + parts.slice(1).join("");
+                    }
+                    setWaitstaffCostRate(val === "" ? 0 : Number(val));
+                  }} 
+                  className="input-field w-full" 
+                />
               </div>
             </div>
           </div>
