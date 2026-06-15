@@ -90,24 +90,24 @@ export interface MonthlyPL {
   margin: number
 }
 
-export type InvoiceStatus = 'DRAFT' | 'SENT' | 'PARTIAL' | 'PAID' | 'OVERDUE' | 'VOID'
+export type ReceiptStatus = 'DRAFT' | 'SENT' | 'PARTIAL' | 'PAID' | 'OVERDUE' | 'VOID'
 
-export interface InvoiceItem {
+export interface ReceiptItem {
   description: string
   quantity: number
   price: number
 }
 
-export interface Invoice {
+export interface Receipt {
   id: string
   event_id: string | null
   project_id: string | null
-  invoice_number: string
+  receipt_number: string
   amount: number
   issue_date: string
   due_date: string | null
-  status: InvoiceStatus
-  items: InvoiceItem[]
+  status: ReceiptStatus
+  items: ReceiptItem[]
   source?: string | null
   notes: string | null
   created_at: string

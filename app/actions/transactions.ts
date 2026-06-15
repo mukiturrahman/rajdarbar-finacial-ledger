@@ -10,7 +10,7 @@ function revalidateAllFinancialPaths() {
   revalidatePath('/transactions')
   revalidatePath('/monthly-pl')
   revalidatePath('/events')
-  revalidatePath('/invoices')
+  revalidatePath('/receipts')
 }
 
 export async function saveTransactionAction(payload: unknown, isEdit: boolean, id?: string) {

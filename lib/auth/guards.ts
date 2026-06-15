@@ -23,9 +23,9 @@ export async function requireMutationAccess() {
     throw new Error('Unauthorized: Account is not active')
   }
 
-  if (!['owner', 'editor'].includes(profile.role)) {
-    throw new Error('Forbidden: Insufficient permissions. Only owners and editors can perform mutations.')
+  if (!['owner', 'editor', 'manager'].includes(profile.role)) {
+    throw new Error('Forbidden: Insufficient permissions. Only owners, editors, and managers can perform mutations.')
   }
 
-  return { userId: user.id, role: profile.role as 'owner' | 'editor' }
+  return { userId: user.id, role: profile.role as 'owner' | 'editor' | 'manager' }
 }

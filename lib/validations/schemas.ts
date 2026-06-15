@@ -21,23 +21,23 @@ export const TransactionPayloadSchema = z.object({
 
 export type TransactionPayload = z.infer<typeof TransactionPayloadSchema>
 
-export const InvoiceItemSchema = z.object({
+export const ReceiptItemSchema = z.object({
   description: z.string().min(1, 'Item description is required'),
   quantity: z.number().int().positive(),
   price: z.number().nonnegative(),
 })
 
-export const InvoicePayloadSchema = z.object({
+export const ReceiptPayloadSchema = z.object({
   event_id: z.string().uuid().nullable(),
   project_id: z.string().uuid().nullable(),
-  invoice_number: z.string().min(1, 'Invoice number is required').max(50),
+  receipt_number: z.string().min(1, 'Receipt number is required').max(50),
   amount: z.number().nonnegative(),
   issue_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date format'),
   due_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable(),
   status: z.enum(['DRAFT', 'SENT', 'PARTIAL', 'PAID', 'OVERDUE', 'VOID']),
-  items: z.array(InvoiceItemSchema).min(1, 'At least one line item is required'),
+  items: z.array(ReceiptItemSchema).min(1, 'At least one line item is required'),
   source: z.string().nullable().optional(),
   notes: z.string().nullable(),
 })
 
-export type InvoicePayload = z.infer<typeof InvoicePayloadSchema>
+export type ReceiptPayload = z.infer<typeof ReceiptPayloadSchema>

@@ -65,18 +65,11 @@ export function AddTransactionModal({ open, onClose, editTxn, events, projects, 
       <form id="txn-form" onSubmit={handleSubmit} className="flex flex-col gap-4">
         <div className="grid grid-cols-2 gap-4">
           <div><label className="block text-[0.6875rem] font-bold text-text-muted mb-1.5 uppercase tracking-[0.08em]">{t("date")}</label><input type="date" value={form.date} onChange={e => setForm({...form, date: e.target.value})} required className="input-field" /></div>
-          <div><label className="block text-[0.6875rem] font-bold text-text-muted mb-1.5 uppercase tracking-[0.08em]">{t("eventType")}</label>
+          <div><label className="block text-[0.6875rem] font-bold text-text-muted mb-1.5 uppercase tracking-[0.08em]">{t("transactionType")}</label>
             <select value={form.type} onChange={e => setForm({...form, type: e.target.value as 'Income'|'Expense'})} className="input-field"><option>{t("income")}</option><option>{t("expense")}</option></select>
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-4">
-          <div><label className="block text-[0.6875rem] font-bold text-text-muted mb-1.5 uppercase tracking-[0.08em]">{t("description")}</label><input type="text" value={form.description} onChange={e => setForm({...form, description: e.target.value})} required className="input-field" placeholder={t("description")} /></div>
-          <div><label className="block text-[0.6875rem] font-bold text-text-muted mb-1.5 uppercase tracking-[0.08em]">{t("category")}</label>
-            <select value={form.category} onChange={e => setForm({...form, category: e.target.value})} className="input-field">
-              {(config.categories || ['Uncategorized']).map(c => <option key={c}>{c}</option>)}
-            </select>
-          </div>
-        </div>
+        <div><label className="block text-[0.6875rem] font-bold text-text-muted mb-1.5 uppercase tracking-[0.08em]">{t("description")}</label><input type="text" value={form.description} onChange={e => setForm({...form, description: e.target.value})} required className="input-field" placeholder={t("description")} /></div>
         <div className="grid grid-cols-2 gap-4">
           <div><label className="block text-[0.6875rem] font-bold text-text-muted mb-1.5 uppercase tracking-[0.08em]">{t("amount")} (৳)</label><input type="number" step="0.01" min="0" value={form.amount} onChange={e => setForm({...form, amount: e.target.value})} required className="input-field" placeholder="0.00" /></div>
           <div><label className="block text-[0.6875rem] font-bold text-text-muted mb-1.5 uppercase tracking-[0.08em]">{t("method")}</label>

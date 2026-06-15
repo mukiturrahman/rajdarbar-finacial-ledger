@@ -14,8 +14,10 @@ export default async function DashboardPage() {
     { data: eventsRaw },
     { count: projectsCount },
   ] = await Promise.all([
-    supabase.from('transactions').select('*').is('deleted_at', null).order('date', { ascending: false }),
-    supabase.from('events').select('id, name, event_type, party_name, booking_date, event_date, advance_payment, total_amount, created_at').order('created_at', { ascending: false }),
+    supabase.from('transactions').select('*').is('deleted_at', null).order('date', { ascending: false }).order('created_at', { ascending: false }).limit(50),
+    supabase.from('events').select('id, name, event_type, party_name, booking_date, event_date, advance_payment, total_amount, created_at')
+      .gte('event_date', new Date().toISOString().split('T')[0])
+      .order('event_date', { ascending: true }),
     supabase.from('projects').select('*', { count: 'exact', head: true }),
   ])
   const txns = (txnsRaw ?? []) as Transaction[]

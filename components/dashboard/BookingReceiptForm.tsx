@@ -6,9 +6,11 @@ import { useLanguage } from "@/components/LanguageProvider";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useToast } from "@/components/ui/Toast";
 
-export function InvoiceForm() {
+export function BookingReceiptForm() {
   const { t } = useLanguage();
+  const { toast } = useToast();
 
   const [formData, setFormData] = useState({
     eventType: "Wedding",
@@ -20,7 +22,7 @@ export function InvoiceForm() {
     guestsCount: "" as number | string,
     hallCharge: "" as number | string,
     waitstaffQuantity: "" as number | string,
-    lightingCharge: "" as number | string,
+    gasCharge: "" as number | string,
     advancePayment: "" as number | string,
     remainingAmount: "" as number | string,
   });
@@ -28,7 +30,7 @@ export function InvoiceForm() {
   const [eventTypes, setEventTypes] = useState(["Wedding", "Birthday", "Corporate", "Meeting", "Other"]);
 
   useEffect(() => {
-    import("@/app/actions/invoice").then((m) => {
+    import("@/app/actions/booking-receipt").then((m) => {
       m.getEventTypes().then((types) => {
         if (types && types.length > 0) {
           setEventTypes(types);
@@ -49,14 +51,14 @@ export function InvoiceForm() {
     const calculatedTotal =
       (Number(formData.hallCharge) || 0) +
       waitstaffTotal +
-      (Number(formData.lightingCharge) || 0);
+      (Number(formData.gasCharge) || 0);
 
     setTotalAmount(calculatedTotal);
     
     // Auto-calculate remaining amount if total or advance changes
     setFormData(prev => ({ ...prev, remainingAmount: calculatedTotal - (Number(prev.advancePayment) || 0) }));
   }, [
-    formData.hallCharge, formData.waitstaffQuantity, formData.lightingCharge, formData.advancePayment
+    formData.hallCharge, formData.waitstaffQuantity, formData.gasCharge, formData.advancePayment
   ]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -74,19 +76,18 @@ export function InvoiceForm() {
     setIsSubmitting(true);
     
     try {
-      const { createInvoiceAndEvent } = await import("@/app/actions/invoice");
-      const result = await createInvoiceAndEvent(formData, totalAmount);
+      const { createReceiptAndEvent } = await import("@/app/actions/booking-receipt");
+      const result = await createReceiptAndEvent(formData, totalAmount);
       
       if (result.success) {
-        alert("Invoice saved successfully!");
+        toast("Receipt saved successfully!");
         router.push("/events");
         router.refresh();
       } else {
-        alert(`Error: ${result.error}`);
+        toast(`Error: ${result.error}`, "error");
       }
     } catch (error) {
-      console.error(error);
-      alert("An unexpected error occurred.");
+      toast("An unexpected error occurred.", "error");
     } finally {
       setIsSubmitting(false);
     }
@@ -126,11 +127,11 @@ export function InvoiceForm() {
 
       <Card>
         <CardHeader>
-          <CardTitle>{t("invoices")}</CardTitle>
+          <CardTitle>{t("receipts")}</CardTitle>
         </CardHeader>
         <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Input type="number" label={t("hallCharge")} name="hallCharge" value={formData.hallCharge} onChange={handleChange} />
-          <Input type="number" label={t("lightingCharge")} name="lightingCharge" value={formData.lightingCharge} onChange={handleChange} />
+          <Input type="number" label={t("gasCharge")} name="gasCharge" value={formData.gasCharge} onChange={handleChange} />
 
           <div className="md:col-span-2 grid grid-cols-2 gap-4 border p-4 border-border glass rounded-xl">
             <div className="col-span-2 flex justify-between items-center text-[0.8125rem] font-medium text-text-primary">

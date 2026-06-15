@@ -8,10 +8,12 @@ import { Input } from '@/components/ui/input'
 import { logReceiptExpense } from '@/app/actions/receipts'
 import { FileUp, Receipt, Calendar, Plus, Tag, X, UploadCloud } from 'lucide-react'
 import { useLanguage } from '@/components/LanguageProvider'
+import { useToast } from '@/components/ui/Toast'
 
 export function ReceiptForm() {
   const router = useRouter()
   const { t } = useLanguage()
+  const { toast } = useToast()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -40,14 +42,13 @@ export function ReceiptForm() {
       const result = await logReceiptExpense(formData)
       
       if (result.success) {
-        alert(t('receiptLoggedSuccess'))
-        router.push('/invoices')
+        toast(t('receiptLoggedSuccess'))
+        router.push('/receipts')
       } else {
-        alert(`${t('error')}: ${result.error}`)
+        toast(`${t('error')}: ${result.error}`, "error")
       }
     } catch (error) {
-      console.error(error)
-      alert(t('unexpectedError'))
+      toast(t('unexpectedError'), "error")
     } finally {
       setIsSubmitting(false)
     }

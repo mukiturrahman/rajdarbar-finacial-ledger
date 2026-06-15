@@ -1,4 +1,4 @@
-import { ReceiptForm } from '@/components/invoices/ReceiptForm'
+import { ReceiptForm } from '@/components/receipts/ReceiptForm'
 
 export default function NewReceiptPage() {
   return (

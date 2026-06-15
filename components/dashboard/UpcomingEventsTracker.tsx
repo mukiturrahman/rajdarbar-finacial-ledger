@@ -4,16 +4,12 @@ import React from "react";
 import { useLanguage } from "@/components/LanguageProvider";
 import { Calendar } from "lucide-react";
 import type { EventClient } from '@/types';
+import { formatDate } from "@/lib/utils/formatters";
 
 import Link from 'next/link';
 
 export function UpcomingEventsTracker({ events = [] }: { events?: EventClient[] }) {
   const { t } = useLanguage();
-
-  const formatDate = (dateStr?: string) => {
-    if (!dateStr) return "N/A";
-    return new Date(dateStr).toLocaleDateString();
-  };
 
   return (
     <div className="glass w-full">
@@ -34,7 +30,7 @@ export function UpcomingEventsTracker({ events = [] }: { events?: EventClient[] 
                 <th>{t("partyName")}</th>
                 <th>{t("eventDate")}</th>
                 <th>{t("bookingDate")}</th>
-                <th>{t("advancePayment")}</th>
+                <th>{t("totalPaid")}</th>
               </tr>
             </thead>
             <tbody>
@@ -53,10 +49,10 @@ export function UpcomingEventsTracker({ events = [] }: { events?: EventClient[] 
                       </td>
                       <td>
                         <span className="inline-flex items-center px-2 py-0.5 bg-semantic-indigo/10 text-semantic-indigo text-xs font-medium">
-                          {formatDate(event.event_date)}
+                          {event.event_date ? formatDate(event.event_date) : "N/A"}
                         </span>
                       </td>
-                      <td className="text-text-muted">{formatDate(event.booking_date)}</td>
+                      <td className="text-text-muted">{event.booking_date ? formatDate(event.booking_date) : "N/A"}</td>
                       <td>
                         <div className="flex flex-col">
                           <span className="font-semibold text-text-primary">৳{(event.revenue || event.advance_payment || 0).toLocaleString()}</span>

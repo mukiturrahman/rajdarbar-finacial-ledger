@@ -127,7 +127,7 @@ export function SettingsTabs({ profile, allProfiles: initialProfiles, companyNam
                   {p.id !== profile?.id && p.status !== 'rejected' && (
                     <>
                       <select value={p.role} onChange={e => updateRole(p.id, e.target.value as Role)} className="filter-select !min-w-[100px] !py-1 !text-[0.6875rem]">
-                        <option value="viewer">Viewer</option><option value="editor">Editor</option><option value="owner">Owner</option>
+                        <option value="viewer">Viewer</option><option value="manager">Manager</option><option value="editor">Editor</option><option value="owner">Owner</option>
                       </select>
                       {p.status === 'pending' && (
                         <>

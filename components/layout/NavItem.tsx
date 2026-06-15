@@ -3,7 +3,7 @@ import { usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { useLanguage } from '@/components/LanguageProvider'
 import { LayoutDashboard, ArrowLeftRight, Users, Receipt, TrendingUp, Settings } from 'lucide-react'
-const iconMap: Record<string, React.ElementType> = { home: LayoutDashboard, transactions: ArrowLeftRight, clients: Users, invoices: Receipt, pl: TrendingUp, settings: Settings }
+const iconMap: Record<string, React.ElementType> = { home: LayoutDashboard, transactions: ArrowLeftRight, clients: Users, receipts: Receipt, pl: TrendingUp, settings: Settings }
 interface NavItemProps { labelKey: string; href: string; icon: string }
 export function NavItem({ labelKey, href, icon }: NavItemProps) {
   const { t } = useLanguage()

@@ -21,6 +21,8 @@
   --color-brand-orange: #f07a3a;
   --color-brand-gold: #f5a623;
   --color-brand-accent: #f07a3a;
+  --color-brand-primary: #f07a3a;
+  --color-brand-emerald: #10b981;
 
   /* ─── Semantic ─────────────────────────────────────────────────────────── */
   --color-semantic-green: #34d399;
@@ -186,6 +188,19 @@ body {
   }
   .btn-ghost:hover {
     background: rgba(255,255,255,0.06);
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 
+           rounded-xl text-sm font-semibold cursor-pointer
+           text-text-secondary hover:text-text-primary
+           transition-all duration-200 min-h-[44px];
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+  }
+  .btn-secondary:hover {
+    background: rgba(255,255,255,0.10);
+    border-color: rgba(255,255,255,0.20);
   }
 
   /* Inputs */

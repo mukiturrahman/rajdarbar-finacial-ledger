@@ -1,8 +1,8 @@
 import { formatTaka, formatDate } from '@/lib/utils/formatters'
-import type { Invoice, InvoiceItem } from '@/types'
+import type { Receipt, ReceiptItem } from '@/types'
 
-export function InvoiceTemplate({ invoice }: { invoice: Invoice }) {
-  const items: InvoiceItem[] = typeof invoice.items === 'string' ? JSON.parse(invoice.items) : invoice.items
+export function ReceiptTemplate({ receipt }: { receipt: Receipt }) {
+  const items: ReceiptItem[] = typeof receipt.items === 'string' ? JSON.parse(receipt.items) : receipt.items
   const subtotal = items.reduce((s, i) => s + i.quantity * i.price, 0)
 
   return (
@@ -16,11 +16,11 @@ export function InvoiceTemplate({ invoice }: { invoice: Invoice }) {
           <p className="text-xs text-slate-500 mt-3">Rajdarbar Convention Hall<br />Dhaka, Bangladesh</p>
         </div>
         <div className="text-right">
-          <p className="text-3xl font-bold" style={{ color: '#0d5c3f' }}>INVOICE</p>
-          <p className="text-sm font-mono font-bold text-slate-600 mt-2">{invoice.invoice_number}</p>
+          <p className="text-3xl font-bold" style={{ color: '#0d5c3f' }}>RECEIPT</p>
+          <p className="text-sm font-mono font-bold text-slate-600 mt-2">{receipt.receipt_number}</p>
           <div className="mt-4 text-xs text-slate-500">
-            <p>Issue: {formatDate(invoice.issue_date)}</p>
-            {invoice.due_date && <p>Due: {formatDate(invoice.due_date)}</p>}
+            <p>Issue: {formatDate(receipt.issue_date)}</p>
+            {receipt.due_date && <p>Due: {formatDate(receipt.due_date)}</p>}
           </div>
         </div>
       </div>
@@ -48,12 +48,12 @@ export function InvoiceTemplate({ invoice }: { invoice: Invoice }) {
         <div className="w-64">
           <div className="flex justify-between py-2 border-b border-slate-100"><span className="text-sm text-slate-500">Subtotal</span><span className="font-mono">{formatTaka(subtotal)}</span></div>
           <div className="flex justify-between py-3 mt-1" style={{ background: 'rgba(13,92,63,0.06)', borderRadius: '8px', padding: '12px 16px' }}>
-            <span className="font-bold" style={{ color: '#0d5c3f' }}>Total</span><span className="text-lg font-bold font-mono" style={{ color: '#0d5c3f' }}>{formatTaka(invoice.amount)}</span>
+            <span className="font-bold" style={{ color: '#0d5c3f' }}>Total</span><span className="text-lg font-bold font-mono" style={{ color: '#0d5c3f' }}>{formatTaka(receipt.amount)}</span>
           </div>
         </div>
       </div>
 
-      {invoice.notes && (<div className="mt-4"><p className="text-[0.6875rem] font-bold text-slate-500 uppercase mb-1">Notes</p><p className="text-sm text-slate-600">{invoice.notes}</p></div>)}
+      {receipt.notes && (<div className="mt-4"><p className="text-[0.6875rem] font-bold text-slate-500 uppercase mb-1">Notes</p><p className="text-sm text-slate-600">{receipt.notes}</p></div>)}
 
       <div className="mt-auto pt-8 border-t border-slate-100 text-center">
         <p className="text-xs text-slate-400">Rajdarbar Convention Hall · Financial Department</p>

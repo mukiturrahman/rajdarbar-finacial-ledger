@@ -10,7 +10,7 @@ const navItems = [
   { labelKey: 'dashboard', href: '/', icon: 'home' },
   { labelKey: 'transactions', href: '/transactions', icon: 'transactions' },
   { labelKey: 'events', href: '/events', icon: 'clients' },
-  { labelKey: 'invoices', href: '/invoices', icon: 'invoices' },
+  { labelKey: 'receipts', href: '/receipts', icon: 'receipts' },
   { labelKey: 'monthlyPL', href: '/monthly-pl', icon: 'pl' },
   { labelKey: 'settings', href: '/settings', icon: 'settings' },
 ]

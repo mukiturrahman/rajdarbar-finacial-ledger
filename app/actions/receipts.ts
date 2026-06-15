@@ -6,6 +6,11 @@ import { revalidatePath } from 'next/cache'
 export async function logReceiptExpense(formData: FormData) {
   const supabase = await getSupabaseServer()
   
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
+    return { success: false, error: 'Unauthorized' }
+  }
+
   const date = formData.get('date') as string
   const category = formData.get('category') as string
   const amount = parseFloat(formData.get('amount') as string)
@@ -15,6 +20,16 @@ export async function logReceiptExpense(formData: FormData) {
   let receipt_url = null
 
   if (file && file.size > 0) {
+    const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp']
+    const MAX_SIZE_BYTES = 5 * 1024 * 1024  // 5 MB
+
+    if (file.size > MAX_SIZE_BYTES) {
+      return { success: false, error: 'File must be under 5 MB' }
+    }
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      return { success: false, error: 'Only JPEG, PNG, and WebP files are allowed' }
+    }
+
     const fileExt = file.name.split('.').pop()
     const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`
     
@@ -23,7 +38,6 @@ export async function logReceiptExpense(formData: FormData) {
       .upload(fileName, file)
 
     if (uploadError) {
-      console.error('Error uploading receipt image:', uploadError)
       return { success: false, error: 'Failed to upload image. Does the "receipts" storage bucket exist?' }
     }
 
@@ -43,15 +57,15 @@ export async function logReceiptExpense(formData: FormData) {
     status: 'Paid',
     method: 'Cash', // Default to Cash, can be expanded later
     receipt_url,
-    source: 'Receipt Page'
+    source: 'Receipt Page',
+    created_by: user.id
   })
 
   if (error) {
-    console.error('Error logging receipt:', error)
-    return { success: false, error: error.message }
+    return { success: false, error: `${error.message} (Code: ${error.code}, Details: ${error.details || 'none'}, Hint: ${error.hint || 'none'})` }
   }
 
-  revalidatePath('/invoices')
+  revalidatePath('/receipts')
   revalidatePath('/transactions')
   
   return { success: true }

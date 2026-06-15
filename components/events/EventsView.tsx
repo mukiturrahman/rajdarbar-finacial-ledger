@@ -11,6 +11,7 @@ import { getSupabaseClient } from '@/lib/supabase/client'
 import { Plus } from 'lucide-react'
 import { computeEventProfit } from '@/lib/utils/calculations'
 import type { EventClient, Transaction } from '@/types'
+import { ConfirmModal } from '@/components/ui/ConfirmModal'
 
 interface Props { events: EventClient[]; transactions: Transaction[] }
 
@@ -22,14 +23,28 @@ export function EventsView({ events: initialEvents, transactions }: Props) {
   const [events, setEvents] = useState(initialEvents)
   const [editingEvent, setEditingEvent] = useState<EventClient | null>(null)
   const [selectedEvent, setSelectedEvent] = useState<EventClient | null>(null)
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null)
+  const [paidConfirmId, setPaidConfirmId] = useState<string | null>(null)
 
   const deleteEvent = async (id: string) => {
-    if (!window.confirm('Are you sure you want to delete this event?')) return
     const supabase = getSupabaseClient()
+    
+    // First, soft-delete all transactions associated with this event
+    const { error: txnError } = await supabase
+      .from('transactions')
+      .update({ deleted_at: new Date().toISOString() })
+      .eq('event_id', id)
+
+    if (txnError) {
+      toast(`Failed to delete associated transactions: ${txnError.message}`, 'error')
+      return
+    }
+
     const { error } = await supabase.from('events').delete().eq('id', id)
     if (error) { toast(error.message, 'error'); return }
     setEvents(events.filter(e => e.id !== id))
     toast('Event deleted')
+    router.refresh()
   }
 
   const paidInFull = async (id: string) => {
@@ -37,8 +52,6 @@ export function EventsView({ events: initialEvents, transactions }: Props) {
     if (!ev) return
     const remaining = ev.remaining_amount ?? 0
     if (remaining <= 0) { toast('This event is already fully paid', 'error'); return }
-
-    if (!window.confirm(`Mark as Paid in Full? This will log ৳${remaining.toLocaleString()} as received income.`)) return
 
     const supabase = getSupabaseClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -106,9 +119,9 @@ export function EventsView({ events: initialEvents, transactions }: Props) {
                   key={ev.id}
                   event={ev}
                   profit={profit}
-                  onDelete={deleteEvent}
+                  onDelete={(id) => setDeleteConfirmId(id)}
                   onEdit={(id) => setEditingEvent(events.find(e => e.id === id) || null)}
-                  onPaidInFull={paidInFull}
+                  onPaidInFull={(id) => setPaidConfirmId(id)}
                   onClick={(id) => setSelectedEvent(events.find(e => e.id === id) || null)}
                   canMutate={canMutate}
                 />
@@ -125,6 +138,22 @@ export function EventsView({ events: initialEvents, transactions }: Props) {
         event={selectedEvent}
         profit={selectedEventProfit}
         transactions={selectedEventTxns}
+      />
+      
+      <ConfirmModal
+        open={!!deleteConfirmId}
+        onClose={() => setDeleteConfirmId(null)}
+        onConfirm={() => { if (deleteConfirmId) deleteEvent(deleteConfirmId) }}
+        title="Delete Event"
+        description="Are you sure you want to delete this event?"
+        destructive={true}
+      />
+      <ConfirmModal
+        open={!!paidConfirmId}
+        onClose={() => setPaidConfirmId(null)}
+        onConfirm={() => { if (paidConfirmId) paidInFull(paidConfirmId) }}
+        title="Mark as Paid in Full"
+        description="This will log the remaining balance as received income."
       />
     </>
   )

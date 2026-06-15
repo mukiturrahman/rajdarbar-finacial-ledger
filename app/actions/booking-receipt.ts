@@ -2,6 +2,22 @@
 
 import { getSupabaseServer } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
+import { z } from "zod";
+
+const EventFormSchema = z.object({
+  eventType: z.string().min(1),
+  partyName: z.string().min(1),
+  bookingDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional().or(z.literal('')),
+  eventDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional().or(z.literal('')),
+  guestsCount: z.coerce.number().nonnegative().default(0),
+  hallCharge: z.coerce.number().nonnegative().default(0),
+  waitstaffQuantity: z.coerce.number().nonnegative().default(0),
+  gasCharge: z.coerce.number().nonnegative().default(0),
+  advancePayment: z.coerce.number().nonnegative().default(0),
+  remainingAmount: z.coerce.number().default(0),
+  address: z.string().optional(),
+  mobileNumber: z.string().optional(),
+});
 
 export async function getEventTypes() {
   const supabase = await getSupabaseServer();
@@ -16,7 +32,13 @@ export async function getEventTypes() {
   return ["Wedding", "Birthday", "Corporate", "Meeting", "Other"];
 }
 
-export async function createInvoiceAndEvent(formData: any, totalAmount: number) {
+export async function createReceiptAndEvent(rawFormData: any, totalAmount: number) {
+  const parseResult = EventFormSchema.safeParse(rawFormData);
+  if (!parseResult.success) {
+    return { success: false, error: "Invalid form data" };
+  }
+  const formData = parseResult.data;
+
   const supabase = await getSupabaseServer();
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -24,8 +46,8 @@ export async function createInvoiceAndEvent(formData: any, totalAmount: number) 
     return { success: false, error: "Unauthorized" };
   }
 
-  // Calculate expense for waitstaff based on 450 per boy cost
-  const waitstaffExpense = formData.waitstaffQuantity * 450;
+  // Calculate expense for waitstaff based on 500 per boy cost
+  const waitstaffExpense = formData.waitstaffQuantity * 500;
 
   // 1. Create the Event
   const eventName = `${formData.eventType} - ${formData.partyName}`;
@@ -46,8 +68,7 @@ export async function createInvoiceAndEvent(formData: any, totalAmount: number) 
     .single();
 
   if (eventError || !event) {
-    console.error("Event error:", eventError);
-    return { success: false, error: "Failed to create event" };
+    return { success: false, error: `Failed to create event: ${eventError?.message || 'Unknown error'} (Code: ${eventError?.code}, Details: ${eventError?.details})` };
   }
 
   // 2. Create the Transaction for Advance Payment if greater than 0
@@ -64,7 +85,6 @@ export async function createInvoiceAndEvent(formData: any, totalAmount: number) 
     });
 
     if (txnError) {
-      console.error("Transaction error:", txnError);
       return { success: false, error: "Failed to log transaction" };
     }
   }
@@ -73,7 +93,7 @@ export async function createInvoiceAndEvent(formData: any, totalAmount: number) 
   if (waitstaffExpense > 0) {
     await supabase.from("transactions").insert({
       date: formData.eventDate || new Date().toISOString().split('T')[0],
-      description: `Waitstaff Expense: ${eventName}`,
+      description: `Waitstaff - ${eventName}`,
       event_id: event.id,
       type: "Expense",
       amount: waitstaffExpense,

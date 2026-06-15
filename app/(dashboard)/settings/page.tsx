@@ -30,7 +30,7 @@ export default async function SettingsPage() {
         try {
           eventTypes = JSON.parse(typeConfig.value)
         } catch (e) {
-          console.error("Failed to parse event_types")
+          // ignore
         }
       }
     }

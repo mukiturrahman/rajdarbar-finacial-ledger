@@ -15,18 +15,18 @@ export function RecentTransactions({ transactions }: { transactions: Transaction
         {transactions.length === 0 ? (
           <p className="text-sm text-text-muted">{t("noTransactionsYet")}</p>
         ) : (
-          transactions.map((t) => (
-            <div key={t.id} className="flex items-center justify-between py-2 border-b border-border-subtle last:border-0">
+          transactions.map((txn) => (
+            <div key={txn.id} className="flex items-center justify-between py-2 border-b border-border-subtle last:border-0">
               <div className="flex-1 min-w-0">
-                <p className="text-base font-medium text-text-primary truncate">{t.description}</p>
-                <p className="text-sm text-text-muted">{formatDate(t.date)}</p>
+                <p className="text-base font-medium text-text-primary truncate">{txn.description}</p>
+                <p className="text-sm text-text-muted">{formatDate(txn.date)}</p>
               </div>
               <div className="flex items-center gap-3 ml-3">
-                <Badge variant={t.status} />
+                <Badge variant={txn.status} />
                 <p className={`text-base font-bold font-mono whitespace-nowrap ${
-                  t.type === 'Income' ? 'text-semantic-green' : 'text-semantic-red'
+                  txn.type === 'Income' ? 'text-semantic-green' : 'text-semantic-red'
                 }`}>
-                  {t.type === 'Income' ? '+' : '-'}{formatTaka(t.amount)}
+                  {txn.type === 'Income' ? '+' : '-'}{formatTaka(txn.amount)}
                 </p>
               </div>
             </div>
