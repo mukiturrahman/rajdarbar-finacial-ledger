@@ -96,17 +96,11 @@ export function AddTransactionModal({ open, onClose, editTxn, events, projects, 
             </select>
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-4">
-          <div><label className="block text-[0.6875rem] font-bold text-text-muted mb-1.5 uppercase tracking-[0.08em]">{t("event")}</label>
-            <select value={form.event_id} onChange={e => setForm({...form, event_id: e.target.value, project_id: ''})} className="input-field">
-              <option value="">{t("none")}</option>{events.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-            </select>
-          </div>
-          <div><label className="block text-[0.6875rem] font-bold text-text-muted mb-1.5 uppercase tracking-[0.08em]">{t("project")}</label>
-            <select value={form.project_id} onChange={e => setForm({...form, project_id: e.target.value})} className="input-field">
-              <option value="">{t("none")}</option>{filteredProjects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-            </select>
-          </div>
+        <div>
+          <label className="block text-[0.6875rem] font-bold text-text-muted mb-1.5 uppercase tracking-[0.08em]">{t("event")}</label>
+          <select value={form.event_id} onChange={e => setForm({...form, event_id: e.target.value, project_id: ''})} className="input-field w-full">
+            <option value="">{t("none")}</option>{events.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+          </select>
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div><label className="block text-[0.6875rem] font-bold text-text-muted mb-1.5 uppercase tracking-[0.08em]">{t("status")}</label>
