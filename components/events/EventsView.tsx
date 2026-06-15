@@ -57,9 +57,9 @@ export function EventsView({ events: initialEvents, transactions }: Props) {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) { toast('Not authenticated', 'error'); return }
 
-    const today = new Date().toISOString().split('T')[0]
+    const txnDate = ev.event_date || new Date().toISOString().split('T')[0]
     const { error: txnError } = await supabase.from('transactions').insert({
-      date: today,
+      date: txnDate,
       description: `Final Payment: ${ev.name}`,
       event_id: ev.id,
       type: 'Income',
