@@ -11,12 +11,10 @@ export default async function DashboardPage() {
   const supabase = await getSupabaseServer()
   const [
     { data: txnsRaw },
-    { data: eventsRaw },
-    { count: projectsCount },
+    { data: eventsRaw }
   ] = await Promise.all([
     supabase.from('transactions').select('*').is('deleted_at', null).order('date', { ascending: false }).order('created_at', { ascending: false }),
-    supabase.from('events').select('id, name, event_type, party_name, booking_date, event_date, advance_payment, total_amount, created_at').order('event_date', { ascending: true }),
-    supabase.from('projects').select('*', { count: 'exact', head: true }),
+    supabase.from('events').select('id, name, event_type, party_name, booking_date, event_date, advance_payment, total_amount, created_at').order('event_date', { ascending: true })
   ])
   const txns = (txnsRaw ?? []) as Transaction[]
   const allEvents = (eventsRaw ?? []) as EventClient[]
@@ -30,9 +28,8 @@ export default async function DashboardPage() {
     ...e,
     revenue: computeEventProfit(e, txns).revenue
   }))
-  const activeProjectsCount = projectsCount ?? 0
 
-  const kpis = computeKPIs(txns, activeProjectsCount, allEvents)
+  const kpis = computeKPIs(txns, allEvents)
   const eventProfits = events.map(e => computeEventProfit(e, txns))
   const recent = txns.slice(0, 6)
 

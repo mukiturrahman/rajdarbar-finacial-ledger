@@ -2,13 +2,20 @@ import { getSupabaseServer } from '@/lib/supabase/server'
 import { computeMonthlyPL } from '@/lib/utils/calculations'
 import HealthBanner from '@/components/monthly-pl/HealthBanner'
 import MonthlyTable from '@/components/monthly-pl/MonthlyTable'
-import type { Transaction } from '@/types'
+import type { Transaction, EventClient } from '@/types'
 
 export default async function MonthlyPLPage() {
   const supabase = await getSupabaseServer()
-  const { data } = await supabase.from('transactions').select('*').is('deleted_at', null).order('date', { ascending: false })
-  const txns = (data ?? []) as Transaction[]
-  const monthlyData = computeMonthlyPL(txns)
+  const [
+    { data: txnsRaw },
+    { data: eventsRaw }
+  ] = await Promise.all([
+    supabase.from('transactions').select('*').is('deleted_at', null).order('date', { ascending: false }),
+    supabase.from('events').select('*')
+  ])
+  const txns = (txnsRaw ?? []) as Transaction[]
+  const events = (eventsRaw ?? []) as EventClient[]
+  const monthlyData = computeMonthlyPL(txns, events)
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>

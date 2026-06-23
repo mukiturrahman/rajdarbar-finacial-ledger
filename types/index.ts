@@ -72,8 +72,8 @@ export interface KpiData {
   expenses: number
   net: number
   margin: number
-  activeProjects: number
   estimatedRevenue: number
+  totalEvents: number
 }
 
 export interface EventProfit {
@@ -90,6 +90,7 @@ export interface MonthlyPL {
   expenses: number
   net: number
   margin: number
+  eventsCompleted: number
 }
 
 export type ReceiptStatus = 'DRAFT' | 'SENT' | 'PARTIAL' | 'PAID' | 'OVERDUE' | 'VOID'

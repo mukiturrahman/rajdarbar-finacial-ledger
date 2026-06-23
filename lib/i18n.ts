@@ -76,7 +76,9 @@ export const dictionaries = {
     receiptLoggedSuccess: "Expense receipt logged successfully!",
     error: "Error",
     unexpectedError: "An unexpected error occurred.",
-    logExpenseReceipt: "Log Expense Receipt"
+    logExpenseReceipt: "Log Expense Receipt",
+    totalEvents: "Total Events",
+    eventsCompleted: "Events Completed"
   },
   bn: {
     dashboard: "ড্যাশবোর্ড",
@@ -155,7 +157,9 @@ export const dictionaries = {
     receiptLoggedSuccess: "ব্যয়ের রসিদ সফলভাবে লগ করা হয়েছে!",
     error: "ত্রুটি",
     unexpectedError: "একটি অপ্রত্যাশিত ত্রুটি ঘটেছে।",
-    logExpenseReceipt: "ব্যয়ের রসিদ লগ করুন"
+    logExpenseReceipt: "ব্যয়ের রসিদ লগ করুন",
+    totalEvents: "মোট ইভেন্ট",
+    eventsCompleted: "সম্পন্ন ইভেন্ট"
   },
 };
 
