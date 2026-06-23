@@ -99,7 +99,11 @@ export function AddTransactionModal({ open, onClose, editTxn, events, projects, 
         <div>
           <label className="block text-[0.6875rem] font-bold text-text-muted mb-1.5 uppercase tracking-[0.08em]">{t("event")}</label>
           <select value={form.event_id} onChange={e => setForm({...form, event_id: e.target.value, project_id: ''})} className="input-field w-full">
-            <option value="">{t("none")}</option>{events.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+            <option value="">{t("none")}</option>{events.map(c => (
+              <option key={c.id} value={c.id}>
+                {c.party_name || c.name}{c.mobile_number ? ` - ${c.mobile_number}` : ''}
+              </option>
+            ))}
           </select>
         </div>
         <div className="grid grid-cols-2 gap-4">
