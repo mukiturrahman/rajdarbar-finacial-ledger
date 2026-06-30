@@ -25,6 +25,9 @@ export function EventsView({ events: initialEvents, transactions }: Props) {
   const [selectedEvent, setSelectedEvent] = useState<EventClient | null>(null)
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null)
   const [paidConfirmId, setPaidConfirmId] = useState<string | null>(null)
+  const [selectedMonth, setSelectedMonth] = useState<string>('all')
+
+  const availableMonths = Array.from(new Set(events.map(e => e.event_date?.substring(0, 7)).filter(Boolean) as string[])).sort().reverse()
 
   const deleteEvent = async (id: string) => {
     const supabase = getSupabaseClient()
@@ -91,6 +94,16 @@ export function EventsView({ events: initialEvents, transactions }: Props) {
     router.refresh()
   }
 
+  const filteredEvents = selectedMonth === 'all' 
+    ? events 
+    : events.filter(e => e.event_date?.startsWith(selectedMonth))
+
+  const sortedAndFilteredEvents = [...filteredEvents].sort((a, b) => {
+    const dateA = a.event_date || '9999-12-31'
+    const dateB = b.event_date || '9999-12-31'
+    return dateA.localeCompare(dateB)
+  })
+
   // Get transactions & profit for the selected event
   const selectedEventTxns = selectedEvent
     ? transactions.filter(t => t.event_id === selectedEvent.id)
@@ -101,18 +114,30 @@ export function EventsView({ events: initialEvents, transactions }: Props) {
 
   return (
     <>
-      <div className="page-header">
-        <div><h1>Events</h1><p className="text-[0.8125rem] text-text-muted mt-0.5">{events.length} events registered</p></div>
-        {canMutate && (
-          <div className="flex gap-2">
-            <Link href="/events/new" className="btn-primary"><Plus size={16} />Add Event</Link>
-          </div>
-        )}
+      <div className="page-header flex-wrap">
+        <div><h1>Events</h1><p className="text-[0.8125rem] text-text-muted mt-0.5">{sortedAndFilteredEvents.length} events</p></div>
+        <div className="flex items-center gap-3">
+          <select 
+            className="input !py-1.5 min-w-[140px]" 
+            value={selectedMonth} 
+            onChange={(e) => setSelectedMonth(e.target.value)}
+          >
+            <option value="all">All Months</option>
+            {availableMonths.map(m => {
+              const date = new Date(`${m}-01T00:00:00`)
+              const label = date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+              return <option key={m} value={m}>{label}</option>
+            })}
+          </select>
+          {canMutate && (
+            <Link href="/events/new" className="btn-primary whitespace-nowrap"><Plus size={16} />Add Event</Link>
+          )}
+        </div>
       </div>
       <div className="flex-1 overflow-y-auto p-4 md:py-6 md:px-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {events.length === 0 ? (<div className="col-span-full text-center py-12 text-text-muted">No events yet</div>) :
-            events.map(ev => {
+          {sortedAndFilteredEvents.length === 0 ? (<div className="col-span-full text-center py-12 text-text-muted">No events found</div>) :
+            sortedAndFilteredEvents.map(ev => {
               const profit = computeEventProfit(ev, transactions)
               return (
                 <EventCard
