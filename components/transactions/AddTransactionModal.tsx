@@ -5,6 +5,7 @@ import { Modal } from '@/components/ui/Modal'
 import { useToast } from '@/components/ui/Toast'
 import { saveTransactionAction } from '@/app/actions/transactions'
 import { useLanguage } from '@/components/LanguageProvider'
+import { SearchableSelect } from '@/components/ui/SearchableSelect'
 import { Loader2, Save } from 'lucide-react'
 import type { Transaction, MasterConfig, EventClient, Project } from '@/types'
 
@@ -55,6 +56,11 @@ export function AddTransactionModal({ open, onClose, editTxn, events, projects, 
 
   const filteredProjects = form.event_id ? projects.filter(p => p.event_id === form.event_id) : projects
 
+  const eventOptions = events.map(c => ({
+    value: c.id,
+    label: `${c.party_name || c.name}${c.mobile_number ? ` - ${c.mobile_number}` : ''}`
+  }))
+
   return (
     <Modal open={open} onClose={onClose} title={editTxn ? 'Edit Transaction' : 'Add Transaction'} footer={
       <><button type="button" onClick={onClose} className="btn-ghost">Cancel</button>
@@ -96,15 +102,15 @@ export function AddTransactionModal({ open, onClose, editTxn, events, projects, 
             </select>
           </div>
         </div>
-        <div>
+        <div className="relative z-50">
           <label className="block text-[0.6875rem] font-bold text-text-muted mb-1.5 uppercase tracking-[0.08em]">{t("event")}</label>
-          <select value={form.event_id} onChange={e => setForm({...form, event_id: e.target.value, project_id: ''})} className="input-field w-full">
-            <option value="">{t("none")}</option>{events.map(c => (
-              <option key={c.id} value={c.id}>
-                {c.party_name || c.name}{c.mobile_number ? ` - ${c.mobile_number}` : ''}
-              </option>
-            ))}
-          </select>
+          <SearchableSelect
+            options={eventOptions}
+            value={form.event_id}
+            onChange={val => setForm({...form, event_id: val, project_id: ''})}
+            placeholder={t("none") as string}
+            className="w-full"
+          />
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div><label className="block text-[0.6875rem] font-bold text-text-muted mb-1.5 uppercase tracking-[0.08em]">{t("status")}</label>

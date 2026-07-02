@@ -1,7 +1,7 @@
 'use client'
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
-import { LayoutDashboard, ArrowLeftRight, Users, Receipt, TrendingUp, Settings } from 'lucide-react'
+import { LayoutDashboard, ArrowLeftRight, Users, TrendingUp, Settings } from 'lucide-react'
 import { useLanguage } from '@/components/LanguageProvider'
 
 import { useProfile } from '@/lib/context/ProfileContext'
@@ -10,7 +10,6 @@ const items = [
   { labelKey: 'dashboard', href: '/', icon: LayoutDashboard },
   { labelKey: 'transactions', href: '/transactions', icon: ArrowLeftRight },
   { labelKey: 'events', href: '/events', icon: Users },
-  { labelKey: 'receipts', href: '/receipts', icon: Receipt },
   { labelKey: 'monthlyPL', href: '/monthly-pl', icon: TrendingUp },
   { labelKey: 'settings', href: '/settings', icon: Settings },
 ]
