@@ -22,12 +22,14 @@ interface Props {
   currentSearch: string
   currentType: string
   currentStatus: string
+  currentMonth: string
+  availableMonths: string[]
   config: MasterConfig
   events: EventClient[]
   projects: Project[]
 }
 
-export function TransactionTable({ initialTxns, totalCount, currentPage, currentSearch, currentType, currentStatus, config, events, projects }: Props) {
+export function TransactionTable({ initialTxns, totalCount, currentPage, currentSearch, currentType, currentStatus, currentMonth, availableMonths, config, events, projects }: Props) {
   const { toast } = useToast()
   const router = useRouter()
   const profile = useProfile()
@@ -46,6 +48,7 @@ export function TransactionTable({ initialTxns, totalCount, currentPage, current
   const [search, setSearch] = useState(currentSearch)
   const [typeFilter, setTypeFilter] = useState(currentType)
   const [statusFilter, setStatusFilter] = useState(currentStatus)
+  const [monthFilter, setMonthFilter] = useState(currentMonth)
   const [modalOpen, setModalOpen] = useState(false)
   const [editTxn, setEditTxn] = useState<Transaction | null>(null)
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null)
@@ -72,6 +75,11 @@ export function TransactionTable({ initialTxns, totalCount, currentPage, current
   const handleStatusChange = (val: string) => {
     setStatusFilter(val)
     updateUrlParams({ status: val, page: '1' })
+  }
+
+  const handleMonthChange = (val: string) => {
+    setMonthFilter(val)
+    updateUrlParams({ month: val, page: '1' })
   }
 
   const setPage = (p: number) => {
@@ -109,6 +117,18 @@ export function TransactionTable({ initialTxns, totalCount, currentPage, current
           <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
           <input type="text" placeholder="Search transactions..." value={search} onChange={e => handleSearchChange(e.target.value)} className="filter-search !pl-10" />
         </div>
+        <select 
+          className="filter-select min-w-[140px]" 
+          value={monthFilter || 'all'} 
+          onChange={(e) => handleMonthChange(e.target.value === 'all' ? '' : e.target.value)}
+        >
+          <option value="all">All Months</option>
+          {availableMonths.map(m => {
+            const date = new Date(`${m}-01T00:00:00`)
+            const label = date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+            return <option key={m} value={m}>{label}</option>
+          })}
+        </select>
         <select value={typeFilter} onChange={e => handleTypeChange(e.target.value)} className="filter-select">
           <option value="All">All Types</option>
           <option value="Income">Income</option>

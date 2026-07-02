@@ -48,11 +48,9 @@ export function computeMonthlyPL(txns: Transaction[], events: EventClient[] = []
   const isSettled = (status: string) => !['Pending', 'Rejected', 'On Hold'].includes(status)
 
   const byMonth: Record<string, { txns: Transaction[], eventsCompleted: number }> = {}
-  active.forEach((t) => {
-    const key = t.date.slice(0, 7)
-    if (!byMonth[key]) byMonth[key] = { txns: [], eventsCompleted: 0 }
-    byMonth[key].txns.push(t)
-  })
+  
+  // Create a lookup map for event dates
+  const eventDateMap = new Map(events.map(e => [e.id, e.event_date]))
 
   events.forEach((e) => {
     if (e.event_date) {
@@ -60,6 +58,22 @@ export function computeMonthlyPL(txns: Transaction[], events: EventClient[] = []
       if (!byMonth[key]) byMonth[key] = { txns: [], eventsCompleted: 0 }
       byMonth[key].eventsCompleted += 1
     }
+  })
+
+  active.forEach((t) => {
+    // Default to transaction date
+    let key = t.date.slice(0, 7)
+    
+    // If the transaction is linked to an event, use the event's month instead
+    if (t.event_id && eventDateMap.has(t.event_id)) {
+      const eDate = eventDateMap.get(t.event_id)
+      if (eDate) {
+        key = eDate.slice(0, 7)
+      }
+    }
+
+    if (!byMonth[key]) byMonth[key] = { txns: [], eventsCompleted: 0 }
+    byMonth[key].txns.push(t)
   })
 
   return Object.entries(byMonth)
