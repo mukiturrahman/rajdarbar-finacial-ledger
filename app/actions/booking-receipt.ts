@@ -125,7 +125,7 @@ export async function createReceiptAndEvent(rawFormData: any, totalAmount: numbe
   if (waitstaffExpense > 0) {
     await supabase.from("transactions").insert({
       date: formData.eventDate || new Date().toISOString().split('T')[0],
-      description: `Waitstaff - ${eventName}`,
+      description: `Waitstaff - ${formData.waitstaffQuantity} - ${eventName}`,
       event_id: event.id,
       type: "Expense",
       amount: waitstaffExpense,

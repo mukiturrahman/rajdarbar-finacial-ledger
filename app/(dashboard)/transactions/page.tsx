@@ -51,6 +51,7 @@ export default async function TransactionsPage({ searchParams }: { searchParams:
   return (
     <div className="flex flex-col h-full">
       <TransactionTable 
+        key={`${page}:${search}:${typeFilter}:${statusFilter}:${monthFilter}:${totalCount}:${JSON.stringify(txns)}`}
         initialTxns={txns} 
         totalCount={totalCount} 
         currentPage={page}

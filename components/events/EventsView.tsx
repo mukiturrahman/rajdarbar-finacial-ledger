@@ -99,9 +99,9 @@ export function EventsView({ events: initialEvents, transactions }: Props) {
     : events.filter(e => e.event_date?.startsWith(selectedMonth))
 
   const sortedAndFilteredEvents = [...filteredEvents].sort((a, b) => {
-    const dateA = a.event_date || '9999-12-31'
-    const dateB = b.event_date || '9999-12-31'
-    return dateA.localeCompare(dateB)
+    if (!a.event_date) return b.event_date ? 1 : 0
+    if (!b.event_date) return -1
+    return b.event_date.localeCompare(a.event_date)
   })
 
   // Get transactions & profit for the selected event

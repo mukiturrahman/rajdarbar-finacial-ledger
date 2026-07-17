@@ -1,10 +1,14 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { AddTransactionModal } from './AddTransactionModal'
 import { Badge } from '@/components/ui/Badge'
 import { formatTaka, formatDate } from '@/lib/utils/formatters'
-import { deleteTransactionAction } from '@/app/actions/transactions'
+import {
+  bulkDeleteTransactionsAction,
+  bulkUpdateTransactionStatusAction,
+  deleteTransactionAction,
+} from '@/app/actions/transactions'
 import { useToast } from '@/components/ui/Toast'
 import { useProfile } from '@/lib/context/ProfileContext'
 import { Plus, Trash2, Edit2, ChevronLeft, ChevronRight, Search } from 'lucide-react'
@@ -14,6 +18,7 @@ import { ConfirmModal } from '@/components/ui/ConfirmModal'
 import { usePathname, useSearchParams } from 'next/navigation'
 
 const PER_PAGE = 15
+const TRANSACTION_STATUSES: Transaction['status'][] = ['Pending', 'Received', 'Paid', 'Rejected', 'On Hold']
 
 interface Props {
   initialTxns: Transaction[]
@@ -39,11 +44,11 @@ export function TransactionTable({ initialTxns, totalCount, currentPage, current
   const pathname = usePathname()
 
   const [txns, setTxns] = useState(initialTxns)
-  
-  // Sync state when props change (from URL navigation)
-  useEffect(() => {
-    setTxns(initialTxns)
-  }, [initialTxns])
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(() => new Set())
+  const [bulkStatus, setBulkStatus] = useState<Transaction['status'] | ''>('')
+  const [bulkAction, setBulkAction] = useState<'status' | 'delete' | null>(null)
+  const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false)
+  const selectAllRef = useRef<HTMLInputElement>(null)
 
   const [search, setSearch] = useState(currentSearch)
   const [typeFilter, setTypeFilter] = useState(currentType)
@@ -88,6 +93,84 @@ export function TransactionTable({ initialTxns, totalCount, currentPage, current
 
   const totalPages = Math.max(1, Math.ceil(totalCount / PER_PAGE))
   const paginated = txns
+  const selectedVisibleCount = paginated.filter(t => selectedIds.has(t.id)).length
+  const allVisibleSelected = paginated.length > 0 && selectedVisibleCount === paginated.length
+
+  useEffect(() => {
+    if (selectAllRef.current) {
+      selectAllRef.current.indeterminate = selectedVisibleCount > 0 && !allVisibleSelected
+    }
+  }, [allVisibleSelected, selectedVisibleCount])
+
+  const toggleTransaction = (id: string) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
+
+  const toggleAllVisible = () => {
+    setSelectedIds(prev => {
+      const next = new Set(prev)
+      if (allVisibleSelected) paginated.forEach(t => next.delete(t.id))
+      else paginated.forEach(t => next.add(t.id))
+      return next
+    })
+  }
+
+  const clearSelection = () => {
+    setSelectedIds(new Set())
+    setBulkStatus('')
+  }
+
+  const handleBulkStatusUpdate = async () => {
+    if (!bulkStatus || selectedIds.size === 0) return
+
+    const ids = Array.from(selectedIds)
+    setBulkAction('status')
+    try {
+      const res = await bulkUpdateTransactionStatusAction(ids, bulkStatus)
+      if (!res.success) {
+        toast(res.error || 'Failed to update transactions', 'error')
+        return
+      }
+
+      setTxns(prev => prev.map(t => ids.includes(t.id) ? { ...t, status: bulkStatus } : t))
+      toast(`${ids.length} transaction${ids.length === 1 ? '' : 's'} updated`)
+      clearSelection()
+      router.refresh()
+    } catch {
+      toast('Failed to update transactions', 'error')
+    } finally {
+      setBulkAction(null)
+    }
+  }
+
+  const handleBulkDelete = async () => {
+    if (selectedIds.size === 0) return
+
+    const ids = Array.from(selectedIds)
+    const selectedIdSet = new Set(ids)
+    setBulkAction('delete')
+    try {
+      const res = await bulkDeleteTransactionsAction(ids)
+      if (!res.success) {
+        toast(res.error || 'Failed to delete transactions', 'error')
+        return
+      }
+
+      setTxns(prev => prev.filter(t => !selectedIdSet.has(t.id)))
+      toast(`${ids.length} transaction${ids.length === 1 ? '' : 's'} deleted`)
+      clearSelection()
+      router.refresh()
+    } catch {
+      toast('Failed to delete transactions', 'error')
+    } finally {
+      setBulkAction(null)
+    }
+  }
 
   const handleDelete = async (id: string) => {
     setTxns(txns.filter(t => t.id !== id))
@@ -141,19 +224,89 @@ export function TransactionTable({ initialTxns, totalCount, currentPage, current
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 md:py-6 md:px-0">
+        {canMutate && selectedIds.size > 0 && (
+          <div
+            className="mb-3 flex flex-wrap items-center gap-3 rounded-xl border border-brand-gold/20 bg-brand-gold/[0.05] p-3"
+            aria-busy={bulkAction !== null}
+          >
+            <span className="mr-auto text-sm font-semibold text-text-primary" aria-live="polite">
+              {selectedIds.size} transaction{selectedIds.size === 1 ? '' : 's'} selected
+            </span>
+            <select
+              value={bulkStatus}
+              onChange={e => setBulkStatus(e.target.value as Transaction['status'] | '')}
+              className="filter-select min-w-[160px]"
+              aria-label="New status for selected transactions"
+              disabled={bulkAction !== null}
+            >
+              <option value="">Change status...</option>
+              {TRANSACTION_STATUSES.map(status => <option key={status}>{status}</option>)}
+            </select>
+            <button
+              onClick={handleBulkStatusUpdate}
+              disabled={!bulkStatus || bulkAction !== null}
+              className="btn-primary disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {bulkAction === 'status' ? 'Updating...' : 'Update status'}
+            </button>
+            <button
+              onClick={() => setBulkDeleteOpen(true)}
+              disabled={bulkAction !== null}
+              className="btn-ghost !text-semantic-red hover:!bg-semantic-red/10 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <Trash2 size={16} />
+              {bulkAction === 'delete' ? 'Deleting...' : 'Delete'}
+            </button>
+            <button
+              onClick={clearSelection}
+              disabled={bulkAction !== null}
+              className="btn-ghost disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              Clear
+            </button>
+          </div>
+        )}
+
         <div className="table-wrap md:!mt-0">
           <table className="data-table">
             <thead><tr>
+              {canMutate && (
+                <th className="w-12 !px-2">
+                  <label className="inline-flex h-11 w-11 cursor-pointer items-center justify-center">
+                    <input
+                      ref={selectAllRef}
+                      type="checkbox"
+                      checked={allVisibleSelected}
+                      onChange={toggleAllVisible}
+                      className="h-4 w-4 cursor-pointer accent-brand-gold"
+                      aria-label="Select all transactions on this page"
+                    />
+                  </label>
+                </th>
+              )}
               <th>Date</th><th>Description</th><th>Event</th><th>Type</th><th>Amount</th><th>Method</th><th>Status</th>
               {canMutate && <th className="text-right">Actions</th>}
             </tr></thead>
             <tbody>
               {paginated.length === 0 ? (
-                <tr><td colSpan={canMutate ? 8 : 7} className="text-center py-12 text-text-muted">No transactions found</td></tr>
+                <tr><td colSpan={canMutate ? 9 : 7} className="text-center py-12 text-text-muted">No transactions found</td></tr>
               ) : paginated.map(t => {
                 const eventName = events.find(e => e.id === t.event_id)?.name || '—'
                 return (
-                  <tr key={t.id}>
+                  <tr key={t.id} className={selectedIds.has(t.id) ? 'bg-brand-gold/[0.04]' : undefined}>
+                    {canMutate && (
+                      <td className="!px-2">
+                        <label className="inline-flex h-11 w-11 cursor-pointer items-center justify-center">
+                          <input
+                            type="checkbox"
+                            checked={selectedIds.has(t.id)}
+                            onChange={() => toggleTransaction(t.id)}
+                            className="h-4 w-4 cursor-pointer accent-brand-gold"
+                            aria-label={`Select transaction ${t.description}`}
+                          />
+                        </label>
+                      </td>
+                    )}
                     <td className="text-text-muted whitespace-nowrap">{formatDate(t.date)}</td>
                     <td className="font-medium text-text-primary max-w-[200px] truncate">{t.description}</td>
                     <td className="text-text-secondary">{eventName}</td>
@@ -164,8 +317,22 @@ export function TransactionTable({ initialTxns, totalCount, currentPage, current
                     {canMutate && (
                       <td className="text-right">
                         <div className="flex items-center justify-end gap-1">
-                          <button onClick={() => { setEditTxn(t); setModalOpen(true) }} className="btn-ghost !p-1.5 !min-w-0 !min-h-0 text-text-muted hover:text-brand-gold"><Edit2 size={14} /></button>
-                          <button onClick={() => setDeleteConfirmId(t.id)} className="btn-ghost !p-1.5 !min-w-0 !min-h-0 text-text-muted hover:text-semantic-red"><Trash2 size={14} /></button>
+                          <button
+                            onClick={() => { setEditTxn(t); setModalOpen(true) }}
+                            className="btn-ghost !p-1.5 !min-w-0 !min-h-0 text-text-muted hover:text-brand-gold"
+                            aria-label={`Edit transaction ${t.description}`}
+                            title="Edit transaction"
+                          >
+                            <Edit2 size={14} />
+                          </button>
+                          <button
+                            onClick={() => setDeleteConfirmId(t.id)}
+                            className="btn-ghost !p-1.5 !min-w-0 !min-h-0 text-text-muted hover:text-semantic-red"
+                            aria-label={`Delete transaction ${t.description}`}
+                            title="Delete transaction"
+                          >
+                            <Trash2 size={14} />
+                          </button>
                         </div>
                       </td>
                     )}
@@ -193,6 +360,15 @@ export function TransactionTable({ initialTxns, totalCount, currentPage, current
         onConfirm={() => { if (deleteConfirmId) handleDelete(deleteConfirmId) }}
         title="Delete Transaction"
         description="Are you sure you want to delete this transaction?"
+        destructive={true}
+      />
+      <ConfirmModal
+        open={bulkDeleteOpen}
+        onClose={() => setBulkDeleteOpen(false)}
+        onConfirm={handleBulkDelete}
+        title="Delete Selected Transactions"
+        description={`Are you sure you want to delete ${selectedIds.size} selected transaction${selectedIds.size === 1 ? '' : 's'}?`}
+        confirmText="Delete selected"
         destructive={true}
       />
     </>
