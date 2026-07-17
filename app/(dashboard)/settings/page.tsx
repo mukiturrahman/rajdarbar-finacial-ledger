@@ -31,7 +31,7 @@ export default async function SettingsPage() {
       if (typeConfig?.value) {
         try {
           eventTypes = JSON.parse(typeConfig.value)
-        } catch (e) {
+        } catch {
           // ignore
         }
       }
@@ -45,17 +45,24 @@ export default async function SettingsPage() {
   }
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="page-header"><div><h1>Settings</h1><p className="text-[0.8125rem] text-text-muted mt-0.5">Manage your account and team</p></div></div>
-      <div className="flex-1 overflow-y-auto p-4 md:py-6 md:px-8">
-        <SettingsTabs 
-          profile={currentProfile} 
-          allProfiles={allProfiles} 
-          companyName={companyName} 
-          initialEventTypes={eventTypes} 
-          initialWaitstaffChargeRate={waitstaffChargeRate}
-          initialWaitstaffCostRate={waitstaffCostRate}
-        />
+    <div className="flex min-h-full flex-col">
+      <header className="page-header !block">
+        <div className="mx-auto w-full max-w-[1440px]">
+          <h1>Settings</h1>
+          <p className="mt-0.5 text-[0.8125rem] text-text-muted">Manage venue operations, pricing, and team access</p>
+        </div>
+      </header>
+      <div className="flex-1 px-5 py-5 md:px-8 md:py-6">
+        <div className="mx-auto w-full max-w-[1440px]">
+          <SettingsTabs
+            profile={currentProfile}
+            allProfiles={allProfiles}
+            companyName={companyName}
+            initialEventTypes={eventTypes}
+            initialWaitstaffChargeRate={waitstaffChargeRate}
+            initialWaitstaffCostRate={waitstaffCostRate}
+          />
+        </div>
       </div>
     </div>
   )

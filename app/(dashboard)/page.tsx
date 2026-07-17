@@ -42,20 +42,21 @@ export default async function DashboardPage() {
   const isManager = profile?.role === 'manager'
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex min-h-full flex-col">
       <DashboardHeader />
-      <div className="flex-1 overflow-y-auto p-4 md:py-6 md:px-8 space-y-6">
-        <UpcomingEventsTracker events={events} />
-        
-        {!isManager && (
-          <>
-            <KpiGrid kpis={kpis} />
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
+      <div className="flex-1 px-5 py-5 md:px-8 md:py-6">
+        <div className="mx-auto w-full max-w-[1440px] space-y-5 md:space-y-6">
+          {!isManager && <KpiGrid kpis={kpis} />}
+
+          <UpcomingEventsTracker events={events} />
+
+          {!isManager && (
+            <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-2">
               <ActiveEventsPanel events={eventProfits} />
               <RecentTransactions transactions={recent} />
             </div>
-          </>
-        )}
+          )}
+        </div>
       </div>
     </div>
   )
